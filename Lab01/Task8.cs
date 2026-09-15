@@ -35,6 +35,7 @@ internal class Task8
         Console.WriteLine($"Тиск: {systolic}/{diastolic} - {pressureStatus}");
     }
 
+    
     static double CalculateBMI(double weight, double height)
     {
         return weight / (height * height);
