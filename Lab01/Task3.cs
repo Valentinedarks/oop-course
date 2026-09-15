@@ -9,6 +9,7 @@ internal class Task3
         int birthYear = int.Parse(Console.ReadLine()!);
         int age = 2026 - birthYear;
         
+        
         Console.WriteLine($"Вік: {age} р.");
         if (age <= 17)
         {
