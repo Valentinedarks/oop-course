@@ -6,6 +6,7 @@ internal class Task6
 {
     static void Main()
     {
+        
         int cardNumber = int.Parse(Console.ReadLine()!);
         int lastDigit = cardNumber % 10;
         string department = lastDigit switch
