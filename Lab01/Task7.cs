@@ -58,6 +58,7 @@ internal class Task7
         {
             Console.WriteLine(string.Format(CultureInfo.InvariantCulture, "Перший > 1000:   #{0} — {1:F2} грн", expensiveIndex + 1, prices[expensiveIndex]));
         }
+        
         else
         {
             Console.WriteLine("Перший > 1000:   немає");
