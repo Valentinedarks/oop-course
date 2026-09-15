@@ -4,6 +4,7 @@ namespace Lab01;
 internal class Task4
 {
     static void Main()
+    
     {
         int systolic = int.Parse(Console.ReadLine()!);
         int diastolic = int.Parse(Console.ReadLine()!);
