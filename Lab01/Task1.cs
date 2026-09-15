@@ -14,4 +14,5 @@ internal class Task1
         
         Console.WriteLine(string.Format(CultureInfo.InvariantCulture, "IMT: {0:F2}", imt));
     }
+    
 }
