@@ -16,4 +16,5 @@ internal class Task2
         
         Console.WriteLine(string.Format(CultureInfo.InvariantCulture, "Сума: {0:F2} грн", total));
     }
+    
 }
