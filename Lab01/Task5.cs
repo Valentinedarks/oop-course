@@ -6,6 +6,7 @@ internal class Task5
 {
     static void Main()
     {
+        
         int day = int.Parse(Console.ReadLine()!);
         string result = day switch
         {
