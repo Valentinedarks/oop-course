@@ -6,49 +6,56 @@ class Program
 {
     static void Main(string[] args)
     {
-        // 1. Ініціалізація менеджерів
-        PatientManager patientManager = new PatientManager();
-        DoctorManager doctorManager = new DoctorManager();
-        AppointmentManager appointmentManager = new AppointmentManager(patientManager, doctorManager);
+        // Створюємо єдиний об'єкт клініки-оркестратора
+        Clinic clinic = new Clinic("Медична Клініка");
 
-        // 2. Наповнення тестовими даними (щоб не вводити все вручну при кожному запуску)
-        patientManager.Add(new Patient("Іван", "Петренко", new DateTime(1985, 5, 12), "A+", "0501234567"));
-        patientManager.Add(new Patient("Олена", "Коваль", new DateTime(1993, 8, 24), "B-", "0672345678"));
-        patientManager.Add(new Patient("Максим", "Бойко", new DateTime(2010, 2, 10), "O+", "0933456789"));
+        // --- Ініціалізація тестових даних через об'єкт clinic ---
+        clinic.Patients.Add(new Patient("Іван", "Петренко", new DateTime(1985, 5, 12), "A+", "0501234567"));
+        clinic.Patients.Add(new Patient("Олена", "Коваль", new DateTime(1993, 8, 24), "B-", "0672345678"));
+        clinic.Patients.Add(new Patient("Максим", "Бойко", new DateTime(2010, 2, 10), "O+", "0933456789"));
+        clinic.Patients.Add(new Patient("Валентин", "Руснак", new DateTime(2008, 10, 15), "O+", "0933456789"));
 
-        doctorManager.Add(new Doctor("Олег", "Сидоренко", "Кардіологія", "LIC-001", "0441234567") { WorkStartHour = 8, WorkEndHour = 16 });
-        doctorManager.Add(new Doctor("Наталія", "Мороз", "Неврологія", "LIC-002", "0442345678") { WorkStartHour = 9, WorkEndHour = 18 });
-        doctorManager.Add(new Doctor("Андрій", "Власенко", "Педіатрія", "LIC-003", "0443456789") { WorkStartHour = 8, WorkEndHour = 17 });
+        clinic.Doctors.Add(new Doctor("Олег", "Сидоренко", "Кардіологія", "LIC-001", "0441234567") { WorkStartHour = 8, WorkEndHour = 16 });
+        clinic.Doctors.Add(new Doctor("Наталія", "Мороз", "Неврологія", "LIC-002", "0442345678") { WorkStartHour = 9, WorkEndHour = 18 });
+        clinic.Doctors.Add(new Doctor("Андрій", "Власенко", "Педіатрія", "LIC-003", "0443456789") { WorkStartHour = 8, WorkEndHour = 17 });
 
         // Додаємо тестові записи на прийом
-        appointmentManager.Book(1, 1, DateTime.Now.AddDays(1).AddHours(2), 30);
-        appointmentManager.Book(2, 2, DateTime.Now.AddDays(2).AddHours(3), 45);
+        clinic.Appointments.Book(1, 1, DateTime.Now.AddDays(1).AddHours(2), 30);
+        clinic.Appointments.Book(2, 2, DateTime.Now.AddDays(2).AddHours(3), 45);
 
-        // 3. Головний цикл програми
+        // --- Головний цикл програми ---
         while (true)
         {
-            Console.WriteLine("\n===========================");
-            Console.WriteLine("=== КЛІНІКА: ГОЛОВНЕ МЕНЮ ===");
-            Console.WriteLine("===========================");
+            Console.WriteLine($"\n=== {clinic.Name.ToUpper()}: ГОЛОВНЕ МЕНЮ ===");
             Console.WriteLine("1. Керування пацієнтами");
             Console.WriteLine("2. Керування лікарями");
             Console.WriteLine("3. Керування записами на прийом");
+            Console.WriteLine("4. Розклад на конкретну дату");
+            Console.WriteLine("5. Згенерувати звіт клініки");
             Console.WriteLine("0. Вихід з програми");
             Console.Write("Виберіть опцію: ");
 
             string? choice = Console.ReadLine();
 
-            if (choice == "1")
+            // Кожне підменю приймає Clinic параметром
+            if (choice == "1") PatientMenu(clinic);
+            else if (choice == "2") DoctorMenu(clinic);
+            else if (choice == "3") AppointmentMenu(clinic);
+            else if (choice == "4")
             {
-                PatientMenu(patientManager);
+                Console.Write("Введіть дату (наприклад, 10.05.2026): ");
+                if (DateTime.TryParse(Console.ReadLine(), out DateTime date))
+                {
+                    clinic.DisplaySchedule(date);
+                }
+                else
+                {
+                    Console.WriteLine("Некоректний формат дати.");
+                }
             }
-            else if (choice == "2")
+            else if (choice == "5")
             {
-                DoctorMenu(doctorManager);
-            }
-            else if (choice == "3")
-            {
-                AppointmentMenu(appointmentManager, patientManager, doctorManager);
+                clinic.GenerateReport();
             }
             else if (choice == "0")
             {
@@ -65,7 +72,7 @@ class Program
     // ==========================================
     // ПІДМЕНЮ: ПАЦІЄНТИ
     // ==========================================
-    static void PatientMenu(PatientManager manager)
+    static void PatientMenu(Clinic clinic)
     {
         while (true)
         {
@@ -82,7 +89,7 @@ class Program
 
             if (choice == "1")
             {
-                manager.DisplayAll();
+                clinic.Patients.DisplayAll();
             }
             else if (choice == "2")
             {
@@ -91,13 +98,13 @@ class Program
                 Console.Write("Введіть прізвище: ");
                 string lastName = Console.ReadLine()!;
                 
-                manager.Add(new Patient(firstName, lastName));
+                clinic.Patients.Add(new Patient(firstName, lastName));
             }
             else if (choice == "3")
             {
                 Console.Write("Введіть ім'я або прізвище для пошуку: ");
                 string query = Console.ReadLine()!;
-                Patient[] found = manager.FindByName(query);
+                Patient[] found = clinic.Patients.FindByName(query);
                 
                 if (found.Length == 0)
                 {
@@ -117,7 +124,7 @@ class Program
                 Console.Write("Введіть ID пацієнта для видалення: ");
                 if (int.TryParse(Console.ReadLine(), out int id))
                 {
-                    bool success = manager.Remove(id);
+                    bool success = clinic.Patients.Remove(id);
                     Console.WriteLine(success ? "Пацієнта успішно видалено." : "Пацієнта з таким ID не знайдено.");
                 }
                 else
@@ -127,7 +134,7 @@ class Program
             }
             else if (choice == "5")
             {
-                manager.DisplayStats();
+                clinic.Patients.DisplayStats();
             }
             else if (choice == "0")
             {
@@ -143,7 +150,7 @@ class Program
     // ==========================================
     // ПІДМЕНЮ: ЛІКАРІ
     // ==========================================
-    static void DoctorMenu(DoctorManager manager)
+    static void DoctorMenu(Clinic clinic)
     {
         while (true)
         {
@@ -160,13 +167,13 @@ class Program
 
             if (choice == "1")
             {
-                manager.DisplayAll();
+                clinic.Doctors.DisplayAll();
             }
             else if (choice == "2")
             {
                 Console.Write("Введіть спеціальність для пошуку: ");
                 string spec = Console.ReadLine()!;
-                Doctor[] found = manager.FindBySpeciality(spec);
+                Doctor[] found = clinic.Doctors.FindBySpeciality(spec);
                 
                 if (found.Length == 0)
                 {
@@ -186,7 +193,7 @@ class Program
                 Console.Write("Введіть ID лікаря для видалення: ");
                 if (int.TryParse(Console.ReadLine(), out int id))
                 {
-                    bool success = manager.Remove(id);
+                    bool success = clinic.Doctors.Remove(id);
                     Console.WriteLine(success ? "Лікаря успішно видалено." : "Лікаря з таким ID не знайдено.");
                 }
                 else
@@ -196,7 +203,7 @@ class Program
             }
             else if (choice == "4")
             {
-                manager.DisplayStats();
+                clinic.Doctors.DisplayStats();
             }
             else if (choice == "5")
             {
@@ -207,7 +214,7 @@ class Program
                 Console.Write("Спеціальність: ");
                 string spec = Console.ReadLine()!;
                 
-                manager.Add(new Doctor(firstName, lastName, spec));
+                clinic.Doctors.Add(new Doctor(firstName, lastName, spec));
             }
             else if (choice == "0")
             {
@@ -223,7 +230,7 @@ class Program
     // ==========================================
     // ПІДМЕНЮ: ЗАПИСИ НА ПРИЙОМ
     // ==========================================
-    static void AppointmentMenu(AppointmentManager appManager, PatientManager pManager, DoctorManager dManager)
+    static void AppointmentMenu(Clinic clinic)
     {
         while (true)
         {
@@ -241,15 +248,14 @@ class Program
             if (choice == "1")
             {
                 Console.WriteLine("\n--- Майбутні записи ---");
-                appManager.DisplayList(appManager.GetUpcoming());
+                clinic.Appointments.DisplayList(clinic.Appointments.GetUpcoming());
             }
             else if (choice == "2")
             {
-                // Підказка користувачу: виводимо доступні ID
                 Console.WriteLine("\n[Довідка] Список пацієнтів:");
-                pManager.DisplayAll();
+                clinic.Patients.DisplayAll();
                 Console.WriteLine("[Довідка] Список лікарів:");
-                dManager.DisplayAll();
+                clinic.Doctors.DisplayAll();
 
                 Console.Write("Введіть ID пацієнта: ");
                 if (!int.TryParse(Console.ReadLine(), out int pId))
@@ -276,7 +282,7 @@ class Program
                         int.TryParse(durationStr, out duration);
                     }
 
-                    appManager.Book(pId, dId, dt, duration);
+                    clinic.Appointments.Book(pId, dId, dt, duration);
                 }
                 else
                 {
@@ -288,7 +294,7 @@ class Program
                 Console.Write("Введіть ID запису для його завершення: ");
                 if (int.TryParse(Console.ReadLine(), out int id))
                 {
-                    bool success = appManager.Complete(id);
+                    bool success = clinic.Appointments.Complete(id);
                     Console.WriteLine(success ? $"Запис [{id}] успішно переведено у статус Completed." : "Помилка: запис не знайдено або він вже не в статусі Scheduled.");
                 }
             }
@@ -299,7 +305,7 @@ class Program
                 {
                     Console.Write("Причина скасування (можна залишити порожнім): ");
                     string reason = Console.ReadLine()!;
-                    bool success = appManager.Cancel(id, reason);
+                    bool success = clinic.Appointments.Cancel(id, reason);
                     Console.WriteLine(success ? $"Запис [{id}] скасовано." : "Помилка: запис не знайдено або він вже не в статусі Scheduled.");
                 }
             }
@@ -308,9 +314,9 @@ class Program
                 Console.Write("Введіть ID пацієнта: ");
                 if (int.TryParse(Console.ReadLine(), out int pId))
                 {
-                    Appointment[] patientApps = appManager.GetByPatient(pId);
+                    Appointment[] patientApps = clinic.Appointments.GetByPatient(pId);
                     Console.WriteLine($"\n--- Записи пацієнта #{pId} ---");
-                    appManager.DisplayList(patientApps);
+                    clinic.Appointments.DisplayList(patientApps);
                 }
             }
             else if (choice == "0")
