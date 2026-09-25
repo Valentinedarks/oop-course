@@ -4,27 +4,87 @@ class Program
 {
     static void Main(string[] args)
     {
-        // Створення 3–4 лікарів різними конструкторами[cite: 9]
-        Doctor d1 = new Doctor("Олег", "Сидоренко", "Кардіологія", "LIC-001", "0441234567");
-        // Змінюємо графік після створення[cite: 10]
-        d1.WorkStartHour = 8;
-        d1.WorkEndHour = 16; 
+        PatientManager manager = new PatientManager();
 
-        Doctor d2 = new Doctor("Наталія", "Мороз", "Неврологія");
-        d2.LicenseNumber = "LIC-002";
-        d2.Phone = "0442345678";
-        d2.WorkStartHour = 9;
-        d2.WorkEndHour = 18;
+        // Початкові дані для тестування
+        manager.Add(new Patient("Іван", "Петренко", new DateTime(1985, 5, 12), "A+", "0501234567"));
+        manager.Add(new Patient("Олена", "Коваль", new DateTime(1993, 8, 24), "B-", "0672345678"));
+        manager.Add(new Patient("Максим", "Бойко", new DateTime(2010, 2, 10), "O+", "0933456789"));
+        manager.Add(new Patient("Марія", "Ткач"));
 
-        Doctor d3 = new Doctor("Андрій", "Власенко", "Педіатрія", "LIC-003", "0443456789");
-        
-        Doctor d4 = new Doctor(); // Лікар за замовчуванням
+        // Виклик підменю
+        PatientMenu(manager);
+    }
 
-        // Виведення на екран (спрацьовує ToString, де статус залежить від поточного часу)[cite: 9, 10]
-        Console.WriteLine("\n--- Лікарі ---");
-        Console.WriteLine(d1);
-        Console.WriteLine(d2);
-        Console.WriteLine(d3);
-        Console.WriteLine(d4);
+    // Окремий локальний метод для підменю пацієнтів[cite: 12]
+    static void PatientMenu(PatientManager manager)
+    {
+        while (true)
+        {
+            Console.WriteLine("\n--- Меню Пацієнти ---");
+            Console.WriteLine("1. Показати всіх");
+            Console.WriteLine("2. Додати пацієнта");
+            Console.WriteLine("3. Знайти за ім'ям");
+            Console.WriteLine("4. Видалити за ID");
+            Console.WriteLine("5. Статистика");
+            Console.WriteLine("0. Вихід");
+            Console.Write("Виберіть опцію: ");
+
+            string? choice = Console.ReadLine();
+
+            if (choice == "1")
+            {
+                manager.DisplayAll();
+            }
+            else if (choice == "2")
+            {
+                Console.Write("Введіть ім'я: ");
+                string firstName = Console.ReadLine()!; // ! гарантує, що не null[cite: 2]
+                Console.Write("Введіть прізвище: ");
+                string lastName = Console.ReadLine()!;
+                
+                manager.Add(new Patient(firstName, lastName));
+            }
+            else if (choice == "3")
+            {
+                Console.Write("Введіть ім'я або прізвище для пошуку: ");
+                string query = Console.ReadLine()!;
+                Patient[] found = manager.FindByName(query);
+                
+                if (found.Length == 0)
+                {
+                    Console.WriteLine("Нікого не знайдено.");
+                }
+                else
+                {
+                    Console.WriteLine($"\nЗнайдено ({found.Length}):");
+                    for (int i = 0; i < found.Length; i++)
+                    {
+                        Console.WriteLine(found[i].ToString());
+                    }
+                }
+            }
+            else if (choice == "4")
+            {
+                Console.Write("Введіть ID для видалення: ");
+                if (int.TryParse(Console.ReadLine(), out int id))
+                {
+                    bool success = manager.Remove(id);
+                    Console.WriteLine(success ? "Пацієнта видалено." : "Пацієнта з таким ID не знайдено.");
+                }
+            }
+            else if (choice == "5")
+            {
+                manager.DisplayStats();
+            }
+            else if (choice == "0")
+            {
+                break;
+            }
+            else
+            {
+                Console.WriteLine("Невідома команда.");
+            }
+        }
     }
 }
