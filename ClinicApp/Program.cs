@@ -9,7 +9,7 @@ class Program
         // Створюємо єдиний об'єкт клініки-оркестратора
         Clinic clinic = new Clinic("Медична Клініка");
 
-        // --- Ініціалізація тестових даних через об'єкт clinic ---
+        // --- Ініціалізація базових тестових даних ---
         clinic.Patients.Add(new Patient("Іван", "Петренко", new DateTime(1985, 5, 12), "A+", "0501234567"));
         clinic.Patients.Add(new Patient("Олена", "Коваль", new DateTime(1993, 8, 24), "B-", "0672345678"));
         clinic.Patients.Add(new Patient("Максим", "Бойко", new DateTime(2010, 2, 10), "O+", "0933456789"));
@@ -19,7 +19,6 @@ class Program
         clinic.Doctors.Add(new Doctor("Наталія", "Мороз", "Неврологія", "LIC-002", "0442345678") { WorkStartHour = 9, WorkEndHour = 18 });
         clinic.Doctors.Add(new Doctor("Андрій", "Власенко", "Педіатрія", "LIC-003", "0443456789") { WorkStartHour = 8, WorkEndHour = 17 });
 
-        // Додаємо тестові записи на прийом
         clinic.Appointments.Book(1, 1, DateTime.Now.AddDays(1).AddHours(2), 30);
         clinic.Appointments.Book(2, 2, DateTime.Now.AddDays(2).AddHours(3), 45);
 
@@ -27,17 +26,17 @@ class Program
         while (true)
         {
             Console.WriteLine($"\n=== {clinic.Name.ToUpper()}: ГОЛОВНЕ МЕНЮ ===");
-            Console.WriteLine("1. Керування пацієнтами");
+            Console.WriteLine("1. Керування пацієнтами (статичний масив)");
             Console.WriteLine("2. Керування лікарями");
             Console.WriteLine("3. Керування записами на прийом");
             Console.WriteLine("4. Розклад на конкретну дату");
             Console.WriteLine("5. Згенерувати звіт клініки");
+            Console.WriteLine("6. Тест GrowablePatientManager (Задача 8)");
             Console.WriteLine("0. Вихід з програми");
             Console.Write("Виберіть опцію: ");
 
             string? choice = Console.ReadLine();
 
-            // Кожне підменю приймає Clinic параметром
             if (choice == "1") PatientMenu(clinic);
             else if (choice == "2") DoctorMenu(clinic);
             else if (choice == "3") AppointmentMenu(clinic);
@@ -57,6 +56,10 @@ class Program
             {
                 clinic.GenerateReport();
             }
+            else if (choice == "6")
+            {
+                TestGrowableArray();
+            }
             else if (choice == "0")
             {
                 Console.WriteLine("Роботу завершено. Навседобре!");
@@ -67,6 +70,33 @@ class Program
                 Console.WriteLine("Невідома команда. Спробуйте ще раз.");
             }
         }
+    }
+
+    // ==========================================
+    // ТЕСТ ЗАДАЧІ 8: ДИНАМІЧНИЙ МАСИВ
+    // ==========================================
+    static void TestGrowableArray()
+    {
+        Console.WriteLine("\n=== Тест GrowablePatientManager ===");
+        GrowablePatientManager dynamicManager = new GrowablePatientManager();
+        
+        Console.WriteLine("Додаємо пацієнтів одного за одним ...");
+        // У циклі додаємо 20 пацієнтів, щоб побачити кілька розширень (4 -> 8 -> 16 -> 32)
+        for (int i = 1; i <= 20; i++)
+        {
+            dynamicManager.Add(new Patient($"Тест", $"Пацієнт{i}"));
+        }
+
+        Console.WriteLine("\nТест пошуку:");
+        Patient? p10 = dynamicManager.FindById(10);
+        Console.WriteLine($"FindById(10) -> {(p10 != null ? p10.FullName : "не знайдено")}");
+
+        Patient? p99 = dynamicManager.FindById(99);
+        Console.WriteLine($"FindById(99) -> {(p99 != null ? p99.FullName : "не знайдено")}");
+
+        Console.WriteLine("\nПорівняння:");
+        Console.WriteLine("PatientManager:         100 місць (фіксовано)");
+        Console.WriteLine($"GrowablePatientManager: {dynamicManager.Capacity} місця (зросте при потребі)");
     }
 
     // ==========================================
@@ -87,17 +117,11 @@ class Program
 
             string? choice = Console.ReadLine();
 
-            if (choice == "1")
-            {
-                clinic.Patients.DisplayAll();
-            }
+            if (choice == "1") clinic.Patients.DisplayAll();
             else if (choice == "2")
             {
-                Console.Write("Введіть ім'я: ");
-                string firstName = Console.ReadLine()!;
-                Console.Write("Введіть прізвище: ");
-                string lastName = Console.ReadLine()!;
-                
+                Console.Write("Введіть ім'я: "); string firstName = Console.ReadLine()!;
+                Console.Write("Введіть прізвище: "); string lastName = Console.ReadLine()!;
                 clinic.Patients.Add(new Patient(firstName, lastName));
             }
             else if (choice == "3")
@@ -106,44 +130,23 @@ class Program
                 string query = Console.ReadLine()!;
                 Patient[] found = clinic.Patients.FindByName(query);
                 
-                if (found.Length == 0)
-                {
-                    Console.WriteLine("Пацієнтів не знайдено.");
-                }
+                if (found.Length == 0) Console.WriteLine("Пацієнтів не знайдено.");
                 else
                 {
                     Console.WriteLine($"\nЗнайдено ({found.Length}):");
-                    for (int i = 0; i < found.Length; i++)
-                    {
-                        Console.WriteLine(found[i].ToString());
-                    }
+                    for (int i = 0; i < found.Length; i++) Console.WriteLine(found[i].ToString());
                 }
             }
             else if (choice == "4")
             {
                 Console.Write("Введіть ID пацієнта для видалення: ");
                 if (int.TryParse(Console.ReadLine(), out int id))
-                {
-                    bool success = clinic.Patients.Remove(id);
-                    Console.WriteLine(success ? "Пацієнта успішно видалено." : "Пацієнта з таким ID не знайдено.");
-                }
-                else
-                {
-                    Console.WriteLine("Некоректний формат ID.");
-                }
+                    Console.WriteLine(clinic.Patients.Remove(id) ? "Пацієнта успішно видалено." : "Пацієнта з таким ID не знайдено.");
+                else Console.WriteLine("Некоректний формат ID.");
             }
-            else if (choice == "5")
-            {
-                clinic.Patients.DisplayStats();
-            }
-            else if (choice == "0")
-            {
-                break;
-            }
-            else
-            {
-                Console.WriteLine("Невідома команда.");
-            }
+            else if (choice == "5") clinic.Patients.DisplayStats();
+            else if (choice == "0") break;
+            else Console.WriteLine("Невідома команда.");
         }
     }
 
@@ -165,65 +168,37 @@ class Program
 
             string? choice = Console.ReadLine();
 
-            if (choice == "1")
-            {
-                clinic.Doctors.DisplayAll();
-            }
+            if (choice == "1") clinic.Doctors.DisplayAll();
             else if (choice == "2")
             {
                 Console.Write("Введіть спеціальність для пошуку: ");
                 string spec = Console.ReadLine()!;
                 Doctor[] found = clinic.Doctors.FindBySpeciality(spec);
                 
-                if (found.Length == 0)
-                {
-                    Console.WriteLine("Лікарів такої спеціальності не знайдено.");
-                }
+                if (found.Length == 0) Console.WriteLine("Лікарів такої спеціальності не знайдено.");
                 else
                 {
                     Console.WriteLine($"\nЗнайдено ({found.Length}):");
-                    for (int i = 0; i < found.Length; i++)
-                    {
-                        Console.WriteLine(found[i].ToString());
-                    }
+                    for (int i = 0; i < found.Length; i++) Console.WriteLine(found[i].ToString());
                 }
             }
             else if (choice == "3")
             {
                 Console.Write("Введіть ID лікаря для видалення: ");
                 if (int.TryParse(Console.ReadLine(), out int id))
-                {
-                    bool success = clinic.Doctors.Remove(id);
-                    Console.WriteLine(success ? "Лікаря успішно видалено." : "Лікаря з таким ID не знайдено.");
-                }
-                else
-                {
-                    Console.WriteLine("Некоректний формат ID.");
-                }
+                    Console.WriteLine(clinic.Doctors.Remove(id) ? "Лікаря успішно видалено." : "Лікаря з таким ID не знайдено.");
+                else Console.WriteLine("Некоректний формат ID.");
             }
-            else if (choice == "4")
-            {
-                clinic.Doctors.DisplayStats();
-            }
+            else if (choice == "4") clinic.Doctors.DisplayStats();
             else if (choice == "5")
             {
-                Console.Write("Введіть ім'я: ");
-                string firstName = Console.ReadLine()!;
-                Console.Write("Введіть прізвище: ");
-                string lastName = Console.ReadLine()!;
-                Console.Write("Спеціальність: ");
-                string spec = Console.ReadLine()!;
-                
+                Console.Write("Введіть ім'я: "); string firstName = Console.ReadLine()!;
+                Console.Write("Введіть прізвище: "); string lastName = Console.ReadLine()!;
+                Console.Write("Спеціальність: "); string spec = Console.ReadLine()!;
                 clinic.Doctors.Add(new Doctor(firstName, lastName, spec));
             }
-            else if (choice == "0")
-            {
-                break;
-            }
-            else
-            {
-                Console.WriteLine("Невідома команда.");
-            }
+            else if (choice == "0") break;
+            else Console.WriteLine("Невідома команда.");
         }
     }
 
@@ -258,18 +233,10 @@ class Program
                 clinic.Doctors.DisplayAll();
 
                 Console.Write("Введіть ID пацієнта: ");
-                if (!int.TryParse(Console.ReadLine(), out int pId))
-                {
-                    Console.WriteLine("Некоректний ID пацієнта.");
-                    continue;
-                }
+                if (!int.TryParse(Console.ReadLine(), out int pId)) continue;
                 
                 Console.Write("Введіть ID лікаря: ");
-                if (!int.TryParse(Console.ReadLine(), out int dId))
-                {
-                    Console.WriteLine("Некоректний ID лікаря.");
-                    continue;
-                }
+                if (!int.TryParse(Console.ReadLine(), out int dId)) continue;
 
                 Console.Write("Введіть дату та час (наприклад, 10.05.2026 14:00): ");
                 if (DateTime.TryParse(Console.ReadLine(), out DateTime dt))
@@ -277,26 +244,17 @@ class Program
                     Console.Write("Тривалість у хвилинах (натисніть Enter для 30 хв): ");
                     string durationStr = Console.ReadLine()!;
                     int duration = 30;
-                    if (!string.IsNullOrWhiteSpace(durationStr))
-                    {
-                        int.TryParse(durationStr, out duration);
-                    }
-
+                    if (!string.IsNullOrWhiteSpace(durationStr)) int.TryParse(durationStr, out duration);
+                    
                     clinic.Appointments.Book(pId, dId, dt, duration);
                 }
-                else
-                {
-                    Console.WriteLine("Некоректний формат дати або часу.");
-                }
+                else Console.WriteLine("Некоректний формат дати або часу.");
             }
             else if (choice == "3")
             {
                 Console.Write("Введіть ID запису для його завершення: ");
                 if (int.TryParse(Console.ReadLine(), out int id))
-                {
-                    bool success = clinic.Appointments.Complete(id);
-                    Console.WriteLine(success ? $"Запис [{id}] успішно переведено у статус Completed." : "Помилка: запис не знайдено або він вже не в статусі Scheduled.");
-                }
+                    Console.WriteLine(clinic.Appointments.Complete(id) ? $"Запис [{id}] успішно переведено у статус Completed." : "Помилка: запис не знайдено або він вже не в статусі Scheduled.");
             }
             else if (choice == "4")
             {
@@ -305,8 +263,7 @@ class Program
                 {
                     Console.Write("Причина скасування (можна залишити порожнім): ");
                     string reason = Console.ReadLine()!;
-                    bool success = clinic.Appointments.Cancel(id, reason);
-                    Console.WriteLine(success ? $"Запис [{id}] скасовано." : "Помилка: запис не знайдено або він вже не в статусі Scheduled.");
+                    Console.WriteLine(clinic.Appointments.Cancel(id, reason) ? $"Запис [{id}] скасовано." : "Помилка: запис не знайдено або він вже не в статусі Scheduled.");
                 }
             }
             else if (choice == "5")
@@ -319,14 +276,8 @@ class Program
                     clinic.Appointments.DisplayList(patientApps);
                 }
             }
-            else if (choice == "0")
-            {
-                break;
-            }
-            else
-            {
-                Console.WriteLine("Невідома команда.");
-            }
+            else if (choice == "0") break;
+            else Console.WriteLine("Невідома команда.");
         }
     }
 }
