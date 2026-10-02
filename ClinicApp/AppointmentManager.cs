@@ -78,6 +78,18 @@ public class AppointmentManager
         return false;
     }
 
+    public Appointment? this[int index]
+    {
+        get
+        {
+            if (index >= 0 && index < _count)
+            {
+                return _appointments[index];
+            }
+            return null;
+        }
+    }
+    
     public bool Complete(int id)
     {
         Appointment? app = FindById(id);
@@ -123,7 +135,12 @@ public class AppointmentManager
             DisplayAppointment(list[i]);
         }
     }
-
+    
+    public Appointment[] GetByDate(int year, int month, int day)
+    {
+        return GetByDate(new DateTime(year, month, day));
+    }
+    
     // Двопрохідний патерн для фільтрації за пацієнтом[cite: 17, 18]
     public Appointment[] GetByPatient(int patientId)
     {

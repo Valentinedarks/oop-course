@@ -2,7 +2,7 @@
 
 public class DoctorManager
 {
-    private const int MaxDoctors = 50; // Ліміт для лікарів
+    private const int MaxDoctors = 50;
     private Doctor[] _doctors = new Doctor[MaxDoctors];
     private int _count = 0;
 
@@ -34,18 +34,18 @@ public class DoctorManager
                 return _doctors[i];
             }
         }
+
         return null;
     }
 
-    public Doctor[] FindBySpeciality(string speciality)
+    public Doctor[] FindBySpeciality(Speciality speciality)
     {
-        // Той самий двопрохідний патерн, що й у пацієнтах[cite: 14]
-        string search = speciality.ToLower();
         int matchCount = 0;
 
         for (int i = 0; i < _count; i++)
         {
-            if (_doctors[i].Speciality.ToLower().Contains(search))
+            // Пряме порівняння замість .ToLower().Contains()
+            if (_doctors[i].Speciality == speciality)
             {
                 matchCount++;
             }
@@ -56,7 +56,7 @@ public class DoctorManager
 
         for (int i = 0; i < _count; i++)
         {
-            if (_doctors[i].Speciality.ToLower().Contains(search))
+            if (_doctors[i].Speciality == speciality)
             {
                 result[index] = _doctors[i];
                 index++;
@@ -74,6 +74,7 @@ public class DoctorManager
         {
             copy[i] = _doctors[i];
         }
+
         return copy;
     }
 
@@ -117,9 +118,56 @@ public class DoctorManager
         {
             Console.WriteLine(_doctors[i].ToString());
         }
+
         Console.WriteLine(new string('=', 30));
     }
+    
+    public bool TryFindById(int id, out Doctor doctor)
+    {
+        doctor = FindById(id);
+        return doctor != null;
+    }
+    
+    public Doctor[] FindBySpeciality(string query)
+    {
+        string search = query.ToLower();
+        int matchCount = 0;
 
+        for (int i = 0; i < _count; i++)
+        {
+            string specName = ClinicFormatter.FormatSpeciality(_doctors[i].Speciality).ToLower();
+            if (specName.Contains(search))
+            {
+                matchCount++;
+            }
+        }
+
+        Doctor[] result = new Doctor[matchCount];
+        int index = 0;
+
+        for (int i = 0; i < _count; i++)
+        {
+            string specName = ClinicFormatter.FormatSpeciality(_doctors[i].Speciality).ToLower();
+            if (specName.Contains(search))
+            {
+                result[index++] = _doctors[i];
+            }
+        }
+
+        return result;
+    }
+    
+    public Doctor? this[int index]
+    {
+        get
+        {
+            if (index >= 0 && index < _count)
+            {
+                return _doctors[index];
+            }
+            return null;
+        }
+    }
     public void DisplayStats()
     {
         if (_count == 0)
@@ -143,34 +191,35 @@ public class DoctorManager
         Console.WriteLine($"Доступні зараз:\t{availableNow}");
         Console.WriteLine("По спеціальностях:");
 
-        // Пошук унікальних спеціальностей через вкладені цикли[cite: 14]
         for (int i = 0; i < _count; i++)
         {
             bool isUnique = true;
-            // Перевіряємо, чи не зустрічалася ця спеціальність раніше (j < i)[cite: 14]
             for (int j = 0; j < i; j++)
             {
-                if (_doctors[i].Speciality.ToLower() == _doctors[j].Speciality.ToLower())
+                // Прибрано .ToLower()
+                if (_doctors[i].Speciality == _doctors[j].Speciality)
                 {
                     isUnique = false;
                     break;
                 }
             }
 
-            // Якщо це нова спеціальність, рахуємо скільки лікарів її мають[cite: 14]
             if (isUnique)
             {
                 int specCount = 0;
                 for (int k = 0; k < _count; k++)
                 {
-                    if (_doctors[i].Speciality.ToLower() == _doctors[k].Speciality.ToLower())
+                    // Прибрано .ToLower()
+                    if (_doctors[i].Speciality == _doctors[k].Speciality)
                     {
                         specCount++;
                     }
                 }
+
                 Console.WriteLine($"  {_doctors[i].Speciality}:\t{specCount}");
             }
         }
+
         Console.WriteLine(new string('=', 30));
     }
 }
