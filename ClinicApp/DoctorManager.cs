@@ -121,7 +121,42 @@ public class DoctorManager
 
         Console.WriteLine(new string('=', 30));
     }
+    
+    public bool TryFindById(int id, out Doctor doctor)
+    {
+        doctor = FindById(id);
+        return doctor != null;
+    }
+    
+    public Doctor[] FindBySpeciality(string query)
+    {
+        string search = query.ToLower();
+        int matchCount = 0;
 
+        for (int i = 0; i < _count; i++)
+        {
+            string specName = ClinicFormatter.FormatSpeciality(_doctors[i].Speciality).ToLower();
+            if (specName.Contains(search))
+            {
+                matchCount++;
+            }
+        }
+
+        Doctor[] result = new Doctor[matchCount];
+        int index = 0;
+
+        for (int i = 0; i < _count; i++)
+        {
+            string specName = ClinicFormatter.FormatSpeciality(_doctors[i].Speciality).ToLower();
+            if (specName.Contains(search))
+            {
+                result[index++] = _doctors[i];
+            }
+        }
+
+        return result;
+    }
+    
     public Doctor? this[int index]
     {
         get

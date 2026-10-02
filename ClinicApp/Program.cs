@@ -20,6 +20,23 @@ class Program
         clinic.Appointments.Book(1, 1, DateTime.Now.AddDays(1).AddHours(2), 30);
         clinic.Appointments.Book(2, 2, DateTime.Now.AddDays(2).AddHours(3), 45);
 
+        // --- Демонстрація Задачі 4 ---
+        Console.WriteLine("\n--- Тест TryFindById та операторів ?. / ?? ---");
+        
+        // Використання TryFindById з out[cite: 19]
+        if (clinic.Patients.TryFindById(3, out Patient foundPatient))
+        {
+            Console.WriteLine($"TryFindById(3): Знайдено - {foundPatient.FullName}");
+        }
+
+        // Використання ?. (null-conditional) та ?? (null-coalescing)[cite: 19, 20]
+        string name = clinic.Patients.FindById(99)?.FullName ?? "не знайдено";
+        Console.WriteLine($"FindById(99)?.FullName ?? \"не знайдено\" -> {name}");
+        
+        // Виклик перевантаженого GetByDate[cite: 19]
+        Appointment[] appsOn10May = clinic.Appointments.GetByDate(2026, 5, 10);
+        Console.WriteLine($"\nЗаписів на 10.05.2026: {appsOn10May.Length}");
+        
         // --- Головний цикл програми ---
         while (true)
         {

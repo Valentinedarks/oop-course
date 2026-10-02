@@ -135,7 +135,12 @@ public class AppointmentManager
             DisplayAppointment(list[i]);
         }
     }
-
+    
+    public Appointment[] GetByDate(int year, int month, int day)
+    {
+        return GetByDate(new DateTime(year, month, day));
+    }
+    
     // Двопрохідний патерн для фільтрації за пацієнтом[cite: 17, 18]
     public Appointment[] GetByPatient(int patientId)
     {
