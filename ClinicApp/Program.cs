@@ -6,18 +6,17 @@ class Program
 {
     static void Main(string[] args)
     {
-        // Створюємо єдиний об'єкт клініки-оркестратора
         Clinic clinic = new Clinic("Медична Клініка");
 
-        // --- Ініціалізація базових тестових даних ---
-        clinic.Patients.Add(new Patient("Іван", "Петренко", new DateTime(1985, 5, 12), "A+", "0501234567"));
-        clinic.Patients.Add(new Patient("Олена", "Коваль", new DateTime(1993, 8, 24), "B-", "0672345678"));
-        clinic.Patients.Add(new Patient("Максим", "Бойко", new DateTime(2010, 2, 10), "O+", "0933456789"));
-        clinic.Patients.Add(new Patient("Валентин", "Руснак", new DateTime(2008, 10, 15), "O+", "0933456789"));
+        // --- Ініціалізація базових тестових даних (з використанням enum) ---[cite: 13]
+        clinic.Patients.Add(new Patient("Іван", "Петренко", new DateTime(1985, 5, 12), BloodType.APositive, "0501234567"));
+        clinic.Patients.Add(new Patient("Олена", "Коваль", new DateTime(1993, 8, 24), BloodType.BNegative, "0672345678"));
+        clinic.Patients.Add(new Patient("Максим", "Бойко", new DateTime(2010, 2, 10), BloodType.OPositive, "0933456789"));
+        clinic.Patients.Add(new Patient("Валентин", "Руснак", new DateTime(2008, 10, 15), BloodType.OPositive, "0933456789"));
 
-        clinic.Doctors.Add(new Doctor("Олег", "Сидоренко", "Кардіологія", "LIC-001", "0441234567") { WorkStartHour = 8, WorkEndHour = 16 });
-        clinic.Doctors.Add(new Doctor("Наталія", "Мороз", "Неврологія", "LIC-002", "0442345678") { WorkStartHour = 9, WorkEndHour = 18 });
-        clinic.Doctors.Add(new Doctor("Андрій", "Власенко", "Педіатрія", "LIC-003", "0443456789") { WorkStartHour = 8, WorkEndHour = 17 });
+        clinic.Doctors.Add(new Doctor("Олег", "Сидоренко", Speciality.Cardiology, "LIC-001", "0441234567") { WorkStartHour = 8, WorkEndHour = 16 });
+        clinic.Doctors.Add(new Doctor("Наталія", "Мороз", Speciality.Neurology, "LIC-002", "0442345678") { WorkStartHour = 9, WorkEndHour = 18 });
+        clinic.Doctors.Add(new Doctor("Андрій", "Власенко", Speciality.Pediatrics, "LIC-003", "0443456789") { WorkStartHour = 8, WorkEndHour = 17 });
 
         clinic.Appointments.Book(1, 1, DateTime.Now.AddDays(1).AddHours(2), 30);
         clinic.Appointments.Book(2, 2, DateTime.Now.AddDays(2).AddHours(3), 45);
@@ -72,16 +71,12 @@ class Program
         }
     }
 
-    // ==========================================
-    // ТЕСТ ЗАДАЧІ 8: ДИНАМІЧНИЙ МАСИВ
-    // ==========================================
     static void TestGrowableArray()
     {
         Console.WriteLine("\n=== Тест GrowablePatientManager ===");
         GrowablePatientManager dynamicManager = new GrowablePatientManager();
         
         Console.WriteLine("Додаємо пацієнтів одного за одним ...");
-        // У циклі додаємо 20 пацієнтів, щоб побачити кілька розширень (4 -> 8 -> 16 -> 32)
         for (int i = 1; i <= 20; i++)
         {
             dynamicManager.Add(new Patient($"Тест", $"Пацієнт{i}"));
@@ -99,9 +94,6 @@ class Program
         Console.WriteLine($"GrowablePatientManager: {dynamicManager.Capacity} місця (зросте при потребі)");
     }
 
-    // ==========================================
-    // ПІДМЕНЮ: ПАЦІЄНТИ
-    // ==========================================
     static void PatientMenu(Clinic clinic)
     {
         while (true)
@@ -150,9 +142,6 @@ class Program
         }
     }
 
-    // ==========================================
-    // ПІДМЕНЮ: ЛІКАРІ
-    // ==========================================
     static void DoctorMenu(Clinic clinic)
     {
         while (true)
@@ -171,15 +160,24 @@ class Program
             if (choice == "1") clinic.Doctors.DisplayAll();
             else if (choice == "2")
             {
-                Console.Write("Введіть спеціальність для пошуку: ");
-                string spec = Console.ReadLine()!;
-                Doctor[] found = clinic.Doctors.FindBySpeciality(spec);
+                // Пошук за допомогою Enum.TryParse[cite: 13]
+                Console.Write("Введіть спеціальність англійською (наприклад Cardiology, Surgery): ");
+                string specInput = Console.ReadLine()!;
                 
-                if (found.Length == 0) Console.WriteLine("Лікарів такої спеціальності не знайдено.");
+                if (Enum.TryParse<Speciality>(specInput, true, out Speciality spec))
+                {
+                    Doctor[] found = clinic.Doctors.FindBySpeciality(spec);
+                    
+                    if (found.Length == 0) Console.WriteLine("Лікарів такої спеціальності не знайдено.");
+                    else
+                    {
+                        Console.WriteLine($"\nЗнайдено ({found.Length}):");
+                        for (int i = 0; i < found.Length; i++) Console.WriteLine(found[i].ToString());
+                    }
+                }
                 else
                 {
-                    Console.WriteLine($"\nЗнайдено ({found.Length}):");
-                    for (int i = 0; i < found.Length; i++) Console.WriteLine(found[i].ToString());
+                    Console.WriteLine("Невідома спеціальність. Спробуйте ще раз.");
                 }
             }
             else if (choice == "3")
@@ -194,17 +192,25 @@ class Program
             {
                 Console.Write("Введіть ім'я: "); string firstName = Console.ReadLine()!;
                 Console.Write("Введіть прізвище: "); string lastName = Console.ReadLine()!;
-                Console.Write("Спеціальність: "); string spec = Console.ReadLine()!;
-                clinic.Doctors.Add(new Doctor(firstName, lastName, spec));
+                
+                // Створення лікаря за допомогою Enum.TryParse[cite: 13]
+                Console.Write("Спеціальність (General, Cardiology, Neurology, Pediatrics, Surgery, Orthopedics, Dermatology, Emergency): "); 
+                string specInput = Console.ReadLine()!;
+                
+                if (Enum.TryParse<Speciality>(specInput, true, out Speciality spec))
+                {
+                    clinic.Doctors.Add(new Doctor(firstName, lastName, spec));
+                }
+                else
+                {
+                    Console.WriteLine("Помилка: невідома спеціальність. Лікаря не додано.");
+                }
             }
             else if (choice == "0") break;
             else Console.WriteLine("Невідома команда.");
         }
     }
 
-    // ==========================================
-    // ПІДМЕНЮ: ЗАПИСИ НА ПРИЙОМ
-    // ==========================================
     static void AppointmentMenu(Clinic clinic)
     {
         while (true)
