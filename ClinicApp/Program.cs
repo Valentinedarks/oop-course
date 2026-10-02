@@ -14,10 +14,9 @@ class Program
         clinic.Patients.Add(new Patient("Максим", "Бойко", new DateTime(2010, 2, 10), BloodType.OPositive, "0933456789"));
         clinic.Patients.Add(new Patient("Валентин", "Руснак", new DateTime(2008, 10, 15), BloodType.OPositive, "0933456789"));
 
-        clinic.Doctors.Add(new Doctor("Олег", "Сидоренко", Speciality.Cardiology, "LIC-001", "0441234567") { WorkStartHour = 8, WorkEndHour = 16 });
-        clinic.Doctors.Add(new Doctor("Наталія", "Мороз", Speciality.Neurology, "LIC-002", "0442345678") { WorkStartHour = 9, WorkEndHour = 18 });
-        clinic.Doctors.Add(new Doctor("Андрій", "Власенко", Speciality.Pediatrics, "LIC-003", "0443456789") { WorkStartHour = 8, WorkEndHour = 17 });
-
+        clinic.Doctors.Add(new Doctor("Олег", "Сидоренко", Speciality.Cardiology, "LIC-001", "0441234567") { Schedule = new WorkSchedule(8, 16) });
+        clinic.Doctors.Add(new Doctor("Наталія", "Мороз", Speciality.Neurology, "LIC-002", "0442345678") { Schedule = new WorkSchedule(9, 18) });
+        clinic.Doctors.Add(new Doctor("Андрій", "Власенко", Speciality.Pediatrics, "LIC-003", "0443456789") { Schedule = new WorkSchedule(8, 17) });
         clinic.Appointments.Book(1, 1, DateTime.Now.AddDays(1).AddHours(2), 30);
         clinic.Appointments.Book(2, 2, DateTime.Now.AddDays(2).AddHours(3), 45);
 
