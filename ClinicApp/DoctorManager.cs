@@ -122,6 +122,17 @@ public class DoctorManager
         Console.WriteLine(new string('=', 30));
     }
 
+    public Doctor? this[int index]
+    {
+        get
+        {
+            if (index >= 0 && index < _count)
+            {
+                return _doctors[index];
+            }
+            return null;
+        }
+    }
     public void DisplayStats()
     {
         if (_count == 0)

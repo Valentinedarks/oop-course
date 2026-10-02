@@ -57,7 +57,6 @@ public class Doctor
     public override string ToString()
     {
         string status = IsAvailableNow ? "доступний зараз" : "не в робочий час";
-        // Schedule автоматично викличе свій ToString(), який повертає "08:00-17:00 (9 год)"[cite: 15]
-        return $"[{Id}] {FullName} | {Speciality} | {LicenseNumber} | Тел: {Phone} | {Schedule} | {status}";
+        return $"[{Id}] {FullName} | {ClinicFormatter.FormatSpeciality(Speciality)} | {LicenseNumber} | Тел: {ClinicFormatter.FormatPhone(Phone)} | {Schedule} | {status}";
     }
 }

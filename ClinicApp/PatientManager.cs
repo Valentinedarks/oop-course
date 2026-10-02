@@ -70,6 +70,18 @@ public class PatientManager
         return result;
     }
 
+    public Patient? this[int index]
+    {
+        get
+        {
+            if (index >= 0 && index < _count)
+            {
+                return _patients[index];
+            }
+            return null;
+        }
+    }
+    
     public bool Remove(int id)
     {
         int indexToRemove = -1;

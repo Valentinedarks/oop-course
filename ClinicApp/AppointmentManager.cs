@@ -78,6 +78,18 @@ public class AppointmentManager
         return false;
     }
 
+    public Appointment? this[int index]
+    {
+        get
+        {
+            if (index >= 0 && index < _count)
+            {
+                return _appointments[index];
+            }
+            return null;
+        }
+    }
+    
     public bool Complete(int id)
     {
         Appointment? app = FindById(id);

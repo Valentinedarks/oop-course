@@ -5,11 +5,11 @@ public class Patient
     private static int _nextId = 1;
 
     public int Id { get; }
-    
+
     public string FirstName { get; set; }
     public string LastName { get; set; }
     public DateTime DateOfBirth { get; set; }
-    
+
     // Використовуємо enum[cite: 11]
     public BloodType BloodType { get; set; }
     public string Phone { get; set; }
@@ -29,9 +29,11 @@ public class Patient
             {
                 age--;
             }
+
             return age;
         }
     }
+    
 
     public bool IsAdult
     {
@@ -47,16 +49,16 @@ public class Patient
         DateOfBirth = dob;
         BloodType = bloodType;
         Phone = phone;
-        Email = ""; 
+        Email = "";
     }
 
     // Делегуємо з BloodType.Unknown[cite: 11]
-    public Patient(string firstName, string lastName) 
+    public Patient(string firstName, string lastName)
         : this(firstName, lastName, new DateTime(2000, 1, 1), BloodType.Unknown, "0000000000")
     {
     }
 
-    public Patient() 
+    public Patient()
         : this("Невідомий", "Пацієнт")
     {
     }
@@ -79,6 +81,7 @@ public class Patient
 
     public override string ToString()
     {
-        return $"[{Id}] {FullName} | Вік: {Age} ({GetAgeCategory()}) | Кров: {BloodType} | Тел: {Phone}";
+        return
+            $"[{Id}] {FullName} | Вік: {ClinicFormatter.FormatAge(Age)} ({GetAgeCategory()}) | Кров: {ClinicFormatter.FormatBloodType(BloodType)} | Тел: {ClinicFormatter.FormatPhone(Phone)}";
     }
 }
