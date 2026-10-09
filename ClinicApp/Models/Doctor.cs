@@ -1,17 +1,65 @@
-﻿namespace ClinicApp;
+﻿using System;
+using ClinicApp.Enums;
+using ClinicApp.Utils;
+
+namespace ClinicApp.Models;
 
 public class Doctor
 {
     private static int _nextId = 1;
-    public int Id { get; }
 
-    public string FirstName { get; set; }
-    public string LastName { get; set; }
+    private string _firstName = "";
+    private string _lastName = "";
+    private string _licenseNumber = "";
+    private string _phone = "";
+
+    public int Id { get; private set; }
+
+    public string FirstName
+    {
+        get { return _firstName; }
+        set
+        {
+            ClinicValidator.ValidateName(value, nameof(FirstName));
+            _firstName = value;
+        }
+    }
+
+    public string LastName
+    {
+        get { return _lastName; }
+        set
+        {
+            ClinicValidator.ValidateName(value, nameof(LastName));
+            _lastName = value;
+        }
+    }
+
     public Speciality Speciality { get; set; }
-    public string LicenseNumber { get; set; }
-    public string Phone { get; set; }
 
-    // Нове поле замість WorkStartHour та WorkEndHour[cite: 15]
+    public string LicenseNumber
+    {
+        get { return _licenseNumber; }
+        set
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                throw new ArgumentException("Номер ліцензії не може бути порожнім.", nameof(LicenseNumber));
+            }
+            _licenseNumber = value;
+        }
+    }
+
+    public string Phone
+    {
+        get { return _phone; }
+        set
+        {
+            ClinicValidator.ValidatePhone(value);
+            _phone = value;
+        }
+    }
+
     public WorkSchedule Schedule { get; set; }
 
     public string FullName
@@ -19,7 +67,6 @@ public class Doctor
         get { return FirstName + " " + LastName; }
     }
 
-    // Звернення до властивості структури[cite: 16]
     public bool IsAvailableNow
     {
         get { return Schedule.IsNow; }
@@ -27,15 +74,14 @@ public class Doctor
 
     public Doctor(string firstName, string lastName, Speciality speciality, string licenseNumber, string phone)
     {
-        Id = _nextId++;
         FirstName = firstName;
         LastName = lastName;
         Speciality = speciality;
         LicenseNumber = licenseNumber;
         Phone = phone;
-        
-        // Ініціалізація структури[cite: 15]
         Schedule = new WorkSchedule(8, 17);
+        
+        Id = _nextId++;
     }
 
     public Doctor(string firstName, string lastName, Speciality speciality) 
@@ -48,7 +94,6 @@ public class Doctor
     {
     }
 
-    // Делегування методу структури[cite: 16]
     public bool CanAcceptAt(int hour)
     {
         return Schedule.Contains(hour);

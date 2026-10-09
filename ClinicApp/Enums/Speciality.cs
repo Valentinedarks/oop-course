@@ -1,4 +1,6 @@
-﻿public enum Speciality
+﻿namespace ClinicApp.Enums;
+
+public enum Speciality
 {
     General,
     Cardiology,

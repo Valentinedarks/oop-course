@@ -1,4 +1,6 @@
-﻿public enum BloodType
+﻿namespace ClinicApp.Enums;
+
+public enum BloodType
 {
     Unknown,
     APositive,

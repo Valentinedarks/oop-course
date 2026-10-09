@@ -1,4 +1,9 @@
-﻿namespace ClinicApp;
+﻿using System;
+using ClinicApp.Models;
+using ClinicApp.Enums;
+using ClinicApp.Utils;
+
+namespace ClinicApp.Managers;
 
 public class DoctorManager
 {
@@ -44,7 +49,6 @@ public class DoctorManager
 
         for (int i = 0; i < _count; i++)
         {
-            // Пряме порівняння замість .ToLower().Contains()
             if (_doctors[i].Speciality == speciality)
             {
                 matchCount++;
@@ -68,7 +72,6 @@ public class DoctorManager
 
     public Doctor[] GetAll()
     {
-        // Повертаємо копію масиву рівно на _count елементів[cite: 14]
         Doctor[] copy = new Doctor[_count];
         for (int i = 0; i < _count; i++)
         {
@@ -93,7 +96,6 @@ public class DoctorManager
 
         if (indexToRemove == -1) return false;
 
-        // Зсуваємо елементи[cite: 13]
         for (int i = indexToRemove; i < _count - 1; i++)
         {
             _doctors[i] = _doctors[i + 1];
@@ -168,6 +170,7 @@ public class DoctorManager
             return null;
         }
     }
+
     public void DisplayStats()
     {
         if (_count == 0)
@@ -179,7 +182,6 @@ public class DoctorManager
         int availableNow = 0;
         for (int i = 0; i < _count; i++)
         {
-            // Перевірка доступності[cite: 14]
             if (_doctors[i].IsAvailableNow)
             {
                 availableNow++;
@@ -196,7 +198,6 @@ public class DoctorManager
             bool isUnique = true;
             for (int j = 0; j < i; j++)
             {
-                // Прибрано .ToLower()
                 if (_doctors[i].Speciality == _doctors[j].Speciality)
                 {
                     isUnique = false;
@@ -209,7 +210,6 @@ public class DoctorManager
                 int specCount = 0;
                 for (int k = 0; k < _count; k++)
                 {
-                    // Прибрано .ToLower()
                     if (_doctors[i].Speciality == _doctors[k].Speciality)
                     {
                         specCount++;

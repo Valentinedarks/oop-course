@@ -1,8 +1,10 @@
-﻿namespace ClinicApp;
+﻿using System;
+using ClinicApp.Models;
+
+namespace ClinicApp.Managers;
 
 public class GrowablePatientManager
 {
-    // Внутрішній масив з початковою довжиною 4[cite: 21]
     private Patient[] _patients = new Patient[4];
     private int _count = 0;
 
@@ -11,19 +13,16 @@ public class GrowablePatientManager
         get { return _count; }
     }
 
-    // Повертає поточну довжину внутрішнього масиву _patients[cite: 21, 22]
     public int Capacity
     {
         get { return _patients.Length; }
     }
 
-    // Приватний метод розширення масиву
     private void Grow()
     {
         int oldCapacity = _patients.Length;
-        int newCapacity = oldCapacity * 2; // Збільшення вдвічі[cite: 21, 22]
+        int newCapacity = oldCapacity * 2; 
         
-        // Створення нового масиву та копіювання елементів[cite: 21, 22]
         Patient[] newArray = new Patient[newCapacity];
         for (int i = 0; i < _count; i++)
         {
@@ -32,13 +31,11 @@ public class GrowablePatientManager
         
         _patients = newArray;
         
-        // Вивід повідомлення про розширення[cite: 22]
         Console.WriteLine($"Масив заповнений! Розширення: {oldCapacity} -> {newCapacity}");
     }
 
     public void Add(Patient patient)
     {
-        // Перевірка на заповненість[cite: 21, 22]
         if (_count == _patients.Length)
         {
             Grow();
@@ -47,7 +44,6 @@ public class GrowablePatientManager
         _patients[_count] = patient;
         _count++;
         
-        // Форматований вивід згідно з прикладом[cite: 22]
         Console.WriteLine($"Додано [{patient.Id}]. Розмір: {_count} / {Capacity}");
     }
 
@@ -60,7 +56,7 @@ public class GrowablePatientManager
                 return _patients[i];
             }
         }
-        return null; // Повертає null, якщо не знайдено[cite: 21]
+        return null; 
     }
 
     public bool Remove(int id)
@@ -77,7 +73,6 @@ public class GrowablePatientManager
 
         if (indexToRemove == -1) return false;
 
-        // Видалення зі зсувом ліворуч[cite: 21]
         for (int i = indexToRemove; i < _count - 1; i++)
         {
             _patients[i] = _patients[i + 1];
