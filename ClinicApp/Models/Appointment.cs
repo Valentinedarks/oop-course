@@ -9,7 +9,7 @@ public class Appointment
 
     private int _durationMinutes;
 
-    public int Id { get; }
+    public int Id { get; private set; }
     public int PatientId { get; }
     public int DoctorId { get; }
 
@@ -18,7 +18,14 @@ public class Appointment
     public int DurationMinutes
     {
         get { return _durationMinutes; }
-        set { _durationMinutes = value; }
+        set
+        {
+            if (value <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(DurationMinutes), "Тривалість повинна бути більшою за нуль.");
+            }
+            _durationMinutes = value;
+        }
     }
 
     public AppointmentStatus Status { get; private set; }
@@ -36,7 +43,6 @@ public class Appointment
 
     public Appointment(int patientId, int doctorId, DateTime scheduledAt, int durationMinutes = 30)
     {
-        Id = _nextId++;
         PatientId = patientId;
         DoctorId = doctorId;
         ScheduledAt = scheduledAt;
@@ -44,6 +50,8 @@ public class Appointment
         
         Status = AppointmentStatus.Scheduled;
         Notes = ""; 
+        
+        Id = _nextId++;
     }
 
     public bool Cancel(string reason = "")
