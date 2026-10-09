@@ -1,8 +1,11 @@
-﻿namespace ClinicApp;
+﻿using System;
+using ClinicApp.Models;
+using ClinicApp.Enums;
+
+namespace ClinicApp.Managers;
 
 public class PatientManager
 {
-    // Три приватні поля за схемою Лаби 02
     private const int MaxPatients = 100;
     private Patient[] _patients = new Patient[MaxPatients];
     private int _count = 0;
@@ -28,7 +31,6 @@ public class PatientManager
 
     public Patient? FindById(int id)
     {
-        // Лінійний пошук по перших _count елементах[cite: 12]
         for (int i = 0; i < _count; i++)
         {
             if (_patients[i].Id == id)
@@ -41,7 +43,6 @@ public class PatientManager
 
     public Patient[] FindByName(string name)
     {
-        // Двопрохідний патерн: спочатку рахуємо, потім заповнюємо[cite: 12]
         string search = name.ToLower();
         int matchCount = 0;
 
@@ -126,13 +127,11 @@ public class PatientManager
             return false;
         }
 
-        // Зсуваємо всі наступні елементи на одну позицію ліворуч[cite: 12]
         for (int i = indexToRemove; i < _count - 1; i++)
         {
             _patients[i] = _patients[i + 1];
         }
 
-        // Очищуємо дубльовану комірку та зменшуємо лічильник[cite: 12]
         _patients[_count - 1] = null!; 
         _count--;
 
@@ -141,7 +140,6 @@ public class PatientManager
 
     public void DisplayAll()
     {
-        // Відпрацювання порожнього списку[cite: 12]
         if (_count == 0)
         {
             Console.WriteLine("Список пацієнтів порожній.");
@@ -164,7 +162,6 @@ public class PatientManager
             return;
         }
 
-        // Змінні для накопичення даних за один прохід[cite: 12]
         int sumAges = 0;
         int adultCount = 0;
         int minIndex = 0;

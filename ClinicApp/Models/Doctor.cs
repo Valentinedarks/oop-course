@@ -1,4 +1,8 @@
-﻿namespace ClinicApp;
+﻿using System;
+using ClinicApp.Enums;
+using ClinicApp.Utils;
+
+namespace ClinicApp.Models;
 
 public class Doctor
 {
@@ -11,7 +15,6 @@ public class Doctor
     public string LicenseNumber { get; set; }
     public string Phone { get; set; }
 
-    // Нове поле замість WorkStartHour та WorkEndHour[cite: 15]
     public WorkSchedule Schedule { get; set; }
 
     public string FullName
@@ -19,7 +22,6 @@ public class Doctor
         get { return FirstName + " " + LastName; }
     }
 
-    // Звернення до властивості структури[cite: 16]
     public bool IsAvailableNow
     {
         get { return Schedule.IsNow; }
@@ -34,7 +36,6 @@ public class Doctor
         LicenseNumber = licenseNumber;
         Phone = phone;
         
-        // Ініціалізація структури[cite: 15]
         Schedule = new WorkSchedule(8, 17);
     }
 
@@ -48,7 +49,6 @@ public class Doctor
     {
     }
 
-    // Делегування методу структури[cite: 16]
     public bool CanAcceptAt(int hour)
     {
         return Schedule.Contains(hour);

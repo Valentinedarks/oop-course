@@ -1,4 +1,8 @@
-﻿namespace ClinicApp;
+﻿using System;
+using ClinicApp.Enums;
+using ClinicApp.Utils;
+
+namespace ClinicApp.Models;
 
 public class Patient
 {
@@ -10,7 +14,6 @@ public class Patient
     public string LastName { get; set; }
     public DateTime DateOfBirth { get; set; }
 
-    // Використовуємо enum[cite: 11]
     public BloodType BloodType { get; set; }
     public string Phone { get; set; }
     public string Email { get; set; }
@@ -34,13 +37,11 @@ public class Patient
         }
     }
     
-
     public bool IsAdult
     {
         get { return Age >= 18; }
     }
 
-    // Змінено тип параметра bloodType[cite: 11]
     public Patient(string firstName, string lastName, DateTime dob, BloodType bloodType, string phone)
     {
         Id = _nextId++;
@@ -52,7 +53,6 @@ public class Patient
         Email = "";
     }
 
-    // Делегуємо з BloodType.Unknown[cite: 11]
     public Patient(string firstName, string lastName)
         : this(firstName, lastName, new DateTime(2000, 1, 1), BloodType.Unknown, "0000000000")
     {
@@ -81,7 +81,6 @@ public class Patient
 
     public override string ToString()
     {
-        return
-            $"[{Id}] {FullName} | Вік: {ClinicFormatter.FormatAge(Age)} ({GetAgeCategory()}) | Кров: {ClinicFormatter.FormatBloodType(BloodType)} | Тел: {ClinicFormatter.FormatPhone(Phone)}";
+        return $"[{Id}] {FullName} | Вік: {ClinicFormatter.FormatAge(Age)} ({GetAgeCategory()}) | Кров: {ClinicFormatter.FormatBloodType(BloodType)} | Тел: {ClinicFormatter.FormatPhone(Phone)}";
     }
 }

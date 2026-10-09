@@ -1,12 +1,14 @@
-﻿namespace ClinicApp;
+﻿using System;
+using ClinicApp.Models;
+
+namespace ClinicApp.Managers;
 
 public class AppointmentManager
 {
-    private const int MaxAppointments = 500; // Ліміт записів[cite: 17]
+    private const int MaxAppointments = 500;
     private Appointment[] _appointments = new Appointment[MaxAppointments];
     private int _count = 0;
 
-    // Збережені посилання на інші менеджери[cite: 17, 18]
     private PatientManager _patients;
     private DoctorManager _doctors;
 
@@ -15,14 +17,12 @@ public class AppointmentManager
         get { return _count; }
     }
 
-    // Конструктор отримує залежності і зберігає їх[cite: 17, 18]
     public AppointmentManager(PatientManager patientManager, DoctorManager doctorManager)
     {
         _patients = patientManager;
         _doctors = doctorManager;
     }
 
-    // Приватний метод пошуку для уникнення дублювання в Cancel та Complete[cite: 18]
     private Appointment? FindById(int id)
     {
         for (int i = 0; i < _count; i++)
@@ -35,7 +35,6 @@ public class AppointmentManager
         return null;
     }
 
-    // Валідує ID та створює запис[cite: 17, 18]
     public bool Book(int patientId, int doctorId, DateTime scheduledAt, int durationMinutes = 30)
     {
         if (_count >= MaxAppointments)
@@ -72,7 +71,6 @@ public class AppointmentManager
         Appointment? app = FindById(id);
         if (app != null)
         {
-            // Делегує скасування самому об'єкту[cite: 17]
             return app.Cancel(reason);
         }
         return false;
@@ -95,19 +93,16 @@ public class AppointmentManager
         Appointment? app = FindById(id);
         if (app != null)
         {
-            // Делегує завершення самому об'єкту[cite: 17]
             return app.Complete();
         }
         return false;
     }
 
-    // Виводить запис з іменами замість числових ID[cite: 17, 18]
     public void DisplayAppointment(Appointment app)
     {
         Patient? p = _patients.FindById(app.PatientId);
         Doctor? d = _doctors.FindById(app.DoctorId);
 
-        // Запасний варіант, якщо об'єкт було видалено[cite: 18]
         string patientName = (p != null) ? p.FullName : $"Пацієнт #{app.PatientId}";
         string doctorName = (d != null) ? d.FullName : $"Лікар #{app.DoctorId}";
 
@@ -121,7 +116,6 @@ public class AppointmentManager
         Console.WriteLine(baseInfo);
     }
 
-    // Метод для виводу масиву записів[cite: 17]
     public void DisplayList(Appointment[] list)
     {
         if (list.Length == 0)
@@ -141,7 +135,6 @@ public class AppointmentManager
         return GetByDate(new DateTime(year, month, day));
     }
     
-    // Двопрохідний патерн для фільтрації за пацієнтом[cite: 17, 18]
     public Appointment[] GetByPatient(int patientId)
     {
         int matchCount = 0;
@@ -162,7 +155,6 @@ public class AppointmentManager
         return result;
     }
 
-    // Двопрохідний патерн для фільтрації за лікарем[cite: 17, 18]
     public Appointment[] GetByDoctor(int doctorId)
     {
         int matchCount = 0;
@@ -183,7 +175,6 @@ public class AppointmentManager
         return result;
     }
 
-    // Фільтрація за датою, ігноруючи час доби[cite: 17, 18]
     public Appointment[] GetByDate(DateTime date)
     {
         int matchCount = 0;
@@ -204,7 +195,6 @@ public class AppointmentManager
         return result;
     }
 
-    // Фільтрація майбутніх записів[cite: 17, 18]
     public Appointment[] GetUpcoming()
     {
         int matchCount = 0;

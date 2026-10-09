@@ -1,4 +1,7 @@
-﻿namespace ClinicApp;
+﻿using System;
+using ClinicApp.Enums;
+
+namespace ClinicApp.Models;
 
 public class Appointment
 {
@@ -11,7 +14,6 @@ public class Appointment
     public DateTime ScheduledAt { get; set; }
     public int DurationMinutes { get; set; }
 
-    // Використовуємо enum замість string[cite: 5]
     public AppointmentStatus Status { get; private set; }
     public string Notes { get; private set; }
 
@@ -33,15 +35,15 @@ public class Appointment
         ScheduledAt = scheduledAt;
         DurationMinutes = durationMinutes;
         
-        Status = AppointmentStatus.Scheduled; // Зміна на enum[cite: 5]
+        Status = AppointmentStatus.Scheduled;
         Notes = ""; 
     }
 
     public bool Cancel(string reason = "")
     {
-        if (Status == AppointmentStatus.Scheduled) // Зміна на enum[cite: 5]
+        if (Status == AppointmentStatus.Scheduled)
         {
-            Status = AppointmentStatus.Cancelled; // Зміна на enum[cite: 5]
+            Status = AppointmentStatus.Cancelled;
             Notes = reason;
             return true;
         }
@@ -50,9 +52,9 @@ public class Appointment
 
     public bool Complete()
     {
-        if (Status == AppointmentStatus.Scheduled) // Зміна на enum[cite: 5]
+        if (Status == AppointmentStatus.Scheduled)
         {
-            Status = AppointmentStatus.Completed; // Зміна на enum[cite: 5]
+            Status = AppointmentStatus.Completed;
             return true;
         }
         return false;
