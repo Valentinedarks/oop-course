@@ -24,8 +24,10 @@ class Program
         clinic.Doctors.Add(new Doctor("Наталія", "Мороз", Speciality.Neurology, "LIC-002", "0442345678") { Schedule = new WorkSchedule(9, 18) });
         clinic.Doctors.Add(new Doctor("Андрій", "Власенко", Speciality.Pediatrics, "LIC-003", "0443456789") { Schedule = new WorkSchedule(8, 17) });
 
+        // Початкові записи 3 різних типів
         clinic.Appointments.Book(1, 1, DateTime.Now.AddDays(1).AddHours(2), 30);
-        clinic.Appointments.Book(2, 2, DateTime.Now.AddDays(2).AddHours(3), 45);
+        clinic.Appointments.BookUrgent(2, 2, DateTime.Now.AddDays(2).AddHours(3), "біль у грудях", 30);
+        clinic.Appointments.BookSpecialist(3, 3, DateTime.Now.AddDays(3).AddHours(4), "кардіологія", 45);
 
         clinic.MedicalRecords.Add(new Diagnosis(1, 1, DateTime.Today.AddDays(-30), "I10", "Гіпертонічна хвороба", true));
         clinic.MedicalRecords.Add(new Diagnosis(1, 1, DateTime.Today.AddDays(-5), "J06.9", "Гострий ринофарингіт", false));
@@ -38,6 +40,14 @@ class Program
 
         clinic.MedicalRecords.Add(new LabResult(3, 3, DateTime.Today.AddDays(-2), "Глюкоза", 5.1, "ммоль/л", "3.3-5.5", true));
 
+        // Демонстрація new vs override
+        Console.WriteLine("\n== new vs override ==");
+        UrgentAppointment urgentApp = new UrgentAppointment(1, 1, DateTime.Today.AddDays(1).AddHours(10), "тест");
+        Appointment baseApp = urgentApp;
+
+        Console.WriteLine($"Через Appointment:       {baseApp.GetDescription()} | пріоритет {baseApp.GetPriority()}");
+        Console.WriteLine($"Через UrgentAppointment: {urgentApp.GetDescription()} | пріоритет {urgentApp.GetPriority()}");
+        
         while (true)
         {
             Console.WriteLine("+----------------------------------------------+");
@@ -289,6 +299,7 @@ class Program
             Console.WriteLine("4. Скасувати прийом (Cancelled)");
             Console.WriteLine("5. Знайти всі записи конкретного пацієнта");
             Console.WriteLine("8. Скасувати всі записи пацієнта");
+            Console.WriteLine("9. За типом прийому");
             Console.WriteLine("0. Назад до головного меню");
             Console.Write("Виберіть опцію: ");
 
@@ -375,6 +386,31 @@ class Program
                 Appointment[] patientApps = clinic.Appointments.GetByPatient(pId);
                 int count = AppointmentManager.CancelAll(patientApps, reason);
                 Console.WriteLine($"Скасовано записів: {count}");
+            }
+            else if (choice == "9")
+            {
+                Console.WriteLine("\n1. Термінові");
+                Console.WriteLine("2. Консультації спеціаліста");
+                Console.WriteLine("3. Ззвичайні");
+                Console.Write("Оберіть: ");
+
+                string? subChoice = Console.ReadLine();
+                if (subChoice == "1")
+                {
+                    clinic.Appointments.DisplayList(clinic.Appointments.GetUrgent());
+                }
+                else if (subChoice == "2")
+                {
+                    clinic.Appointments.DisplayList(clinic.Appointments.GetSpecialist());
+                }
+                else if (subChoice == "3")
+                {
+                    clinic.Appointments.DisplayList(clinic.Appointments.GetRegular());
+                }
+                else
+                {
+                    Console.WriteLine("Невідома опція.");
+                }
             }
             else if (choice == "0") break;
             else Console.WriteLine("Невідома команда.");
