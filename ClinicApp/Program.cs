@@ -47,23 +47,7 @@ class Program
 
         Console.WriteLine($"Через Appointment:       {baseApp.GetDescription()} | пріоритет {baseApp.GetPriority()}");
         Console.WriteLine($"Через UrgentAppointment: {urgentApp.GetDescription()} | пріоритет {urgentApp.GetPriority()}");
-
-        /*
-         ВІДПОВІДІ НА ЗАПИТАННЯ:
-         1. Чому GetDescription() через змінну типу Appointment дає опис термінового прийому?
-            Оскільки GetDescription() є віртуальним методом (virtual / override), у C# реалізація викликається 
-            за ФАКТИЧНИМ типом об'єкта в пам'яті (UrgentAppointment), незалежно від типу змінної-посилання.
-
-         2. Чому GetPriority() через ту саму змінну повертає 3, хоча об'єкт — UrgentAppointment?
-            Оскільки GetPriority() у підкласі оголошено з модифікатором 'new' (приховування / method hiding). 
-            Методи, приховані через 'new', НЕ беруть участі в поліморфізмі та обираються за ТИПОМ ЗМІННОЇ. 
-            Змінна baseApp має тип Appointment, тому викликається базова версія Appointment.GetPriority(), яка повертає 3.
-
-         3. Що треба змінити в Appointment і UrgentAppointment, щоб GetPriority() теж працював поліморфно?
-            У базі (Appointment) метод має бути оголошений як 'public virtual int GetPriority()', 
-            а в підкласі (UrgentAppointment) необхідно замінити 'new' на 'public override int GetPriority()'.
-        */
-
+        
         while (true)
         {
             Console.WriteLine("+----------------------------------------------+");
@@ -315,6 +299,7 @@ class Program
             Console.WriteLine("4. Скасувати прийом (Cancelled)");
             Console.WriteLine("5. Знайти всі записи конкретного пацієнта");
             Console.WriteLine("8. Скасувати всі записи пацієнта");
+            Console.WriteLine("9. За типом прийому");
             Console.WriteLine("0. Назад до головного меню");
             Console.Write("Виберіть опцію: ");
 
@@ -401,6 +386,31 @@ class Program
                 Appointment[] patientApps = clinic.Appointments.GetByPatient(pId);
                 int count = AppointmentManager.CancelAll(patientApps, reason);
                 Console.WriteLine($"Скасовано записів: {count}");
+            }
+            else if (choice == "9")
+            {
+                Console.WriteLine("\n1. Термінові");
+                Console.WriteLine("2. Консультації спеціаліста");
+                Console.WriteLine("3. Ззвичайні");
+                Console.Write("Оберіть: ");
+
+                string? subChoice = Console.ReadLine();
+                if (subChoice == "1")
+                {
+                    clinic.Appointments.DisplayList(clinic.Appointments.GetUrgent());
+                }
+                else if (subChoice == "2")
+                {
+                    clinic.Appointments.DisplayList(clinic.Appointments.GetSpecialist());
+                }
+                else if (subChoice == "3")
+                {
+                    clinic.Appointments.DisplayList(clinic.Appointments.GetRegular());
+                }
+                else
+                {
+                    Console.WriteLine("Невідома опція.");
+                }
             }
             else if (choice == "0") break;
             else Console.WriteLine("Невідома команда.");
