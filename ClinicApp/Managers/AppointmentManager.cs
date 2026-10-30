@@ -13,15 +13,57 @@ public class AppointmentManager
     private PatientManager _patients;
     private DoctorManager _doctors;
 
-    public int Count
-    {
-        get { return _count; }
-    }
+    public int Count => _count;
 
     public AppointmentManager(PatientManager patientManager, DoctorManager doctorManager)
     {
         _patients = patientManager;
         _doctors = doctorManager;
+    }
+
+    private bool AddAppointment(Appointment app)
+    {
+        if (_count >= MaxAppointments)
+        {
+            Console.WriteLine("Ліміт записів досягнуто.");
+            return false;
+        }
+
+        Patient? p = _patients.FindById(app.PatientId);
+        Doctor? d = _doctors.FindById(app.DoctorId);
+
+        if (p == null)
+        {
+            Console.WriteLine($"Помилка: пацієнта з ID {app.PatientId} не знайдено.");
+            return false;
+        }
+        
+        if (d == null)
+        {
+            Console.WriteLine($"Помилка: лікаря з ID {app.DoctorId} не знайдено.");
+            return false;
+        }
+
+        _appointments[_count] = app;
+        _count++;
+
+        Console.WriteLine($"Запис [{app.Id}] створено: {p.FullName} -> {d.FullName} о {app.ScheduledAt:dd.MM.yyyy HH:mm}");
+        return true;
+    }
+
+    public bool Book(int patientId, int doctorId, DateTime scheduledAt, int durationMinutes = 30)
+    {
+        return AddAppointment(new RegularAppointment(patientId, doctorId, scheduledAt, durationMinutes));
+    }
+
+    public bool BookUrgent(int patientId, int doctorId, DateTime scheduledAt, string urgencyNote = "", int durationMinutes = 30)
+    {
+        return AddAppointment(new UrgentAppointment(patientId, doctorId, scheduledAt, urgencyNote, durationMinutes));
+    }
+
+    public bool BookSpecialist(int patientId, int doctorId, DateTime scheduledAt, string topic = "", int durationMinutes = 45)
+    {
+        return AddAppointment(new SpecialistAppointment(patientId, doctorId, scheduledAt, topic, durationMinutes));
     }
 
     public static int CancelAll(ICancellable[] items, string reason = "")
@@ -47,37 +89,6 @@ public class AppointmentManager
             }
         }
         return null;
-    }
-
-    public bool Book(int patientId, int doctorId, DateTime scheduledAt, int durationMinutes = 30)
-    {
-        if (_count >= MaxAppointments)
-        {
-            Console.WriteLine("Ліміт записів досягнуто.");
-            return false;
-        }
-
-        Patient? p = _patients.FindById(patientId);
-        Doctor? d = _doctors.FindById(doctorId);
-
-        if (p == null)
-        {
-            Console.WriteLine($"Помилка: пацієнта з ID {patientId} не знайдено.");
-            return false;
-        }
-        
-        if (d == null)
-        {
-            Console.WriteLine($"Помилка: лікаря з ID {doctorId} не знайдено.");
-            return false;
-        }
-
-        Appointment app = new Appointment(patientId, doctorId, scheduledAt, durationMinutes);
-        _appointments[_count] = app;
-        _count++;
-
-        Console.WriteLine($"Запис [{app.Id}] створено: {p.FullName} -> {d.FullName} о {scheduledAt:dd.MM.yyyy HH:mm}");
-        return true;
     }
 
     public bool Cancel(int id, string reason = "")

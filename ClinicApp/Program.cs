@@ -24,8 +24,10 @@ class Program
         clinic.Doctors.Add(new Doctor("Наталія", "Мороз", Speciality.Neurology, "LIC-002", "0442345678") { Schedule = new WorkSchedule(9, 18) });
         clinic.Doctors.Add(new Doctor("Андрій", "Власенко", Speciality.Pediatrics, "LIC-003", "0443456789") { Schedule = new WorkSchedule(8, 17) });
 
+        // Початкові записи 3 різних типів
         clinic.Appointments.Book(1, 1, DateTime.Now.AddDays(1).AddHours(2), 30);
-        clinic.Appointments.Book(2, 2, DateTime.Now.AddDays(2).AddHours(3), 45);
+        clinic.Appointments.BookUrgent(2, 2, DateTime.Now.AddDays(2).AddHours(3), "біль у грудях", 30);
+        clinic.Appointments.BookSpecialist(3, 3, DateTime.Now.AddDays(3).AddHours(4), "кардіологія", 45);
 
         clinic.MedicalRecords.Add(new Diagnosis(1, 1, DateTime.Today.AddDays(-30), "I10", "Гіпертонічна хвороба", true));
         clinic.MedicalRecords.Add(new Diagnosis(1, 1, DateTime.Today.AddDays(-5), "J06.9", "Гострий ринофарингіт", false));
@@ -37,6 +39,30 @@ class Program
         clinic.MedicalRecords.Add(new Diagnosis(2, 2, DateTime.Today.AddDays(-15), "M54.5", "Люмбаго", false));
 
         clinic.MedicalRecords.Add(new LabResult(3, 3, DateTime.Today.AddDays(-2), "Глюкоза", 5.1, "ммоль/л", "3.3-5.5", true));
+
+        // Демонстрація new vs override
+        Console.WriteLine("\n== new vs override ==");
+        UrgentAppointment urgentApp = new UrgentAppointment(1, 1, DateTime.Today.AddDays(1).AddHours(10), "тест");
+        Appointment baseApp = urgentApp;
+
+        Console.WriteLine($"Через Appointment:       {baseApp.GetDescription()} | пріоритет {baseApp.GetPriority()}");
+        Console.WriteLine($"Через UrgentAppointment: {urgentApp.GetDescription()} | пріоритет {urgentApp.GetPriority()}");
+
+        /*
+         ВІДПОВІДІ НА ЗАПИТАННЯ:
+         1. Чому GetDescription() через змінну типу Appointment дає опис термінового прийому?
+            Оскільки GetDescription() є віртуальним методом (virtual / override), у C# реалізація викликається 
+            за ФАКТИЧНИМ типом об'єкта в пам'яті (UrgentAppointment), незалежно від типу змінної-посилання.
+
+         2. Чому GetPriority() через ту саму змінну повертає 3, хоча об'єкт — UrgentAppointment?
+            Оскільки GetPriority() у підкласі оголошено з модифікатором 'new' (приховування / method hiding). 
+            Методи, приховані через 'new', НЕ беруть участі в поліморфізмі та обираються за ТИПОМ ЗМІННОЇ. 
+            Змінна baseApp має тип Appointment, тому викликається базова версія Appointment.GetPriority(), яка повертає 3.
+
+         3. Що треба змінити в Appointment і UrgentAppointment, щоб GetPriority() теж працював поліморфно?
+            У базі (Appointment) метод має бути оголошений як 'public virtual int GetPriority()', 
+            а в підкласі (UrgentAppointment) необхідно замінити 'new' на 'public override int GetPriority()'.
+        */
 
         while (true)
         {
