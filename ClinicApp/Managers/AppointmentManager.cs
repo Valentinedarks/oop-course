@@ -1,4 +1,5 @@
 ﻿using System;
+using ClinicApp.Interfaces;
 using ClinicApp.Models;
 
 namespace ClinicApp.Managers;
@@ -21,6 +22,19 @@ public class AppointmentManager
     {
         _patients = patientManager;
         _doctors = doctorManager;
+    }
+
+    public static int CancelAll(ICancellable[] items, string reason = "")
+    {
+        int cancelledCount = 0;
+        for (int i = 0; i < items.Length; i++)
+        {
+            if (items[i].Cancel(reason))
+            {
+                cancelledCount++;
+            }
+        }
+        return cancelledCount;
     }
 
     private Appointment? FindById(int id)
@@ -128,6 +142,16 @@ public class AppointmentManager
         {
             DisplayAppointment(list[i]);
         }
+    }
+
+    public Appointment[] GetAll()
+    {
+        Appointment[] copy = new Appointment[_count];
+        for (int i = 0; i < _count; i++)
+        {
+            copy[i] = _appointments[i];
+        }
+        return copy;
     }
     
     public Appointment[] GetByDate(int year, int month, int day)
