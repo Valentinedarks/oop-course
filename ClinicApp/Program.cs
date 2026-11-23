@@ -108,6 +108,7 @@ class Program
                 Console.WriteLine("1. Останні рядки лога");
                 Console.WriteLine("2. Очистити лог");
                 Console.WriteLine("3. Експортувати всі звіти");
+                Console.WriteLine("4. Імпорт пацієнтів з CSV");
                 Console.WriteLine("0. Назад");
                 Console.Write("Оберіть: ");
 
@@ -149,6 +150,15 @@ class Program
                         Console.WriteLine($"  {paths[i]}");
                     }
                     clinic.Logger.LogInfo("Експортовано всі звіти у файли.");
+                }
+                else if (choice == "4")
+                {
+                    Console.Write("Шлях до CSV-файлу: ");
+                    string filePath = Console.ReadLine() ?? "";
+                    CsvImporter importer = new CsvImporter();
+                    ImportResult result = importer.ImportPatients(clinic, filePath);
+                    result.Print();
+                    clinic.Logger.LogInfo($"Імпорт CSV ({filePath}): імпортовано {result.Imported}, пропущено {result.Skipped}.");
                 }
                 else if (choice == "0")
                 {
