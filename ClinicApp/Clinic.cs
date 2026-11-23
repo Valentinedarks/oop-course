@@ -14,19 +14,21 @@ public class Clinic
     public MedicalRecordManager MedicalRecords { get; }
     public BillingManager Billing { get; }
     public AnalyticsManager Analytics { get; }
-    
+    public TreatmentPlanManager TreatmentPlans { get; }
+
     public WaitingQueue<Patient> WaitingRoom { get; }
 
     public Clinic(string name)
     {
         Name = name;
-        
+
         Patients = new PatientManager();
         Doctors = new DoctorManager();
         Appointments = new AppointmentManager(Patients, Doctors);
         MedicalRecords = new MedicalRecordManager();
         Billing = new BillingManager(Appointments);
         Analytics = new AnalyticsManager(Appointments, Doctors, Patients);
+        TreatmentPlans = new TreatmentPlanManager();
 
         WaitingRoom = new WaitingQueue<Patient>();
     }
@@ -45,15 +47,15 @@ public class Clinic
         Console.WriteLine("╠════════════════════════════════════════════════════════╣");
         Console.WriteLine($"║ Пацієнтів:          {Patients.Count,-34} ║");
         Console.WriteLine($"║ Лікарів:            {Doctors.Count,-34} ║");
-        
+
         Appointment[] upcoming = Appointments.GetUpcoming();
         Console.WriteLine($"║ Майбутніх записів:  {upcoming.Length,-34} ║");
-        
+
         Console.WriteLine("╠════════════════════════════════════════════════════════╣");
         Console.WriteLine("║ Навантаження лікарів (майбутні записи):                ║");
-        
+
         Doctor[] allDoctors = Doctors.GetAll();
-        
+
         for (int i = 0; i < allDoctors.Length; i++)
         {
             int loadCount = 0;
