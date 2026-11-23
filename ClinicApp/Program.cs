@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Threading;
 using ClinicApp;
@@ -6,6 +7,7 @@ using ClinicApp.Models;
 using ClinicApp.Enums;
 using ClinicApp.Interfaces;
 using ClinicApp.Managers;
+using ClinicApp.Comparators;
 
 class Program
 {
@@ -31,7 +33,6 @@ class Program
         clinic.Doctors.Add(new Doctor("Андрій", "Власенко", Speciality.Pediatrics, "LIC-003", "0443456789")
             { Schedule = new WorkSchedule(8, 17) });
 
-        // Початкові записи 3 різних типів
         clinic.Appointments.Book(1, 1, DateTime.Now.AddDays(1).AddHours(2), 30);
         clinic.Appointments.BookUrgent(2, 2, DateTime.Now.AddDays(2).AddHours(3), "біль у грудях", 30);
         clinic.Appointments.BookSpecialist(3, 3, DateTime.Now.AddDays(3).AddHours(4), "кардіологія", 45);
@@ -52,7 +53,6 @@ class Program
         clinic.MedicalRecords.Add(new LabResult(3, 3, DateTime.Today.AddDays(-2), "Глюкоза", 5.1, "ммоль/л", "3.3-5.5",
             true));
 
-        // Демонстрація new vs override
         Console.WriteLine("\n== new vs override ==");
         UrgentAppointment urgentApp = new UrgentAppointment(1, 1, DateTime.Today.AddDays(1).AddHours(10), "тест");
         Appointment baseApp = urgentApp;
@@ -73,6 +73,7 @@ class Program
             Console.WriteLine("| 5. Рахунки          - оплата, борги          |");
             Console.WriteLine("| 6. Черга            - очікування, прийом     |");
             Console.WriteLine("| 7. Звіт             - загальна статистика    |");
+            Console.WriteLine("| 8. Аналітика        - звіти та рейтинги      |");
             Console.WriteLine("| 0. Вийти                                     |");
             Console.WriteLine("+----------------------------------------------+");
             Console.Write("Виберіть опцію: ");
@@ -86,11 +87,87 @@ class Program
             else if (choice == "5") BillingMenu(clinic);
             else if (choice == "6") WaitingRoomMenu(clinic);
             else if (choice == "7") clinic.GenerateReport();
-            else if (choice == "8") TestGrowableArray();
+            else if (choice == "8") AnalyticsMenu(clinic);
             else if (choice == "0")
             {
                 Console.WriteLine("Роботу завершено. Навседобре!");
                 break;
+            }
+        }
+
+        static List<DoctorStats> CollectDoctorStats(Clinic clinic)
+        {
+            List<DoctorStats> list = new List<DoctorStats>();
+            foreach (DoctorStats stat in clinic.Analytics.ComputeDoctorStats())
+            {
+                list.Add(stat);
+            }
+            return list;
+        }
+
+        static List<PatientStats> CollectPatientStats(Clinic clinic)
+        {
+            List<PatientStats> list = new List<PatientStats>();
+            foreach (PatientStats stat in clinic.Analytics.ComputePatientStats())
+            {
+                list.Add(stat);
+            }
+            return list;
+        }
+
+        static void AnalyticsMenu(Clinic clinic)
+        {
+            while (true)
+            {
+                Console.WriteLine("\n--- Аналітика --------------------");
+                Console.WriteLine("1. Лікарі за навантаженням");
+                Console.WriteLine("2. Лікарі за виручкою");
+                Console.WriteLine("3. Лікарі за іменем");
+                Console.WriteLine("4. Пацієнти за кількістю візитів");
+                Console.WriteLine("5. Пацієнти за витратами");
+                Console.WriteLine("0. Назад");
+                Console.Write("Оберіть: ");
+
+                string? choice = Console.ReadLine();
+
+                if (choice == "1")
+                {
+                    List<DoctorStats> stats = CollectDoctorStats(clinic);
+                    stats.Sort();
+                    foreach (DoctorStats s in stats) Console.WriteLine(s);
+                }
+                else if (choice == "2")
+                {
+                    List<DoctorStats> stats = CollectDoctorStats(clinic);
+                    stats.Sort(new DoctorStatsByRevenue());
+                    foreach (DoctorStats s in stats) Console.WriteLine(s);
+                }
+                else if (choice == "3")
+                {
+                    List<DoctorStats> stats = CollectDoctorStats(clinic);
+                    stats.Sort(new DoctorStatsByName());
+                    foreach (DoctorStats s in stats) Console.WriteLine(s);
+                }
+                else if (choice == "4")
+                {
+                    List<PatientStats> stats = CollectPatientStats(clinic);
+                    stats.Sort();
+                    foreach (PatientStats s in stats) Console.WriteLine(s);
+                }
+                else if (choice == "5")
+                {
+                    List<PatientStats> stats = CollectPatientStats(clinic);
+                    stats.Sort(new PatientStatsBySpent());
+                    foreach (PatientStats s in stats) Console.WriteLine(s);
+                }
+                else if (choice == "0")
+                {
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("Невідома команда.");
+                }
             }
         }
 
@@ -795,29 +872,6 @@ class Program
                     Console.WriteLine("Невідома команда.");
                 }
             }
-        }
-
-        static void TestGrowableArray()
-        {
-            Console.WriteLine("\n=== Тест GrowablePatientManager ===");
-            GrowablePatientManager dynamicManager = new GrowablePatientManager();
-
-            Console.WriteLine("Додаємо пацієнтів одного за одним ...");
-            for (int i = 1; i <= 20; i++)
-            {
-                dynamicManager.Add(new Patient($"Тест", $"Пацієнт{i}"));
-            }
-
-            Console.WriteLine("\nТест пошуку:");
-            Patient? p10 = dynamicManager.FindById(10);
-            Console.WriteLine($"FindById(10) -> {(p10 != null ? p10.FullName : "не знайдено")}");
-
-            Patient? p99 = dynamicManager.FindById(99);
-            Console.WriteLine($"FindById(99) -> {(p99 != null ? p99.FullName : "не знайдено")}");
-
-            Console.WriteLine("\nПорівняння:");
-            Console.WriteLine("PatientManager:         100 місць (фіксовано)");
-            Console.WriteLine($"GrowablePatientManager: {dynamicManager.Capacity} місця (зросте при потребі)");
         }
 
         static void PatientMenu(Clinic clinic)
