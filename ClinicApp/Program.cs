@@ -53,6 +53,18 @@ class Program
 
         clinic.MedicalRecords.Add(new LabResult(3, 3, DateTime.Today.AddDays(-2), "Глюкоза", 5.1, "ммоль/л", "3.3-5.5",
             true));
+        
+        if (clinic.Session.Exists())
+        {
+            Console.Write("Знайдено збережену сесію. Завантажити? (y/n): ");
+            string? loadChoice = Console.ReadLine();
+            if (loadChoice != null && loadChoice.Trim().Equals("y", StringComparison.OrdinalIgnoreCase))
+            {
+                int loaded = clinic.Session.Load(clinic);
+                Console.WriteLine($"Завантажено {loaded} пацієнтів.");
+                clinic.Logger.LogInfo($"Завантажено сесію ({loaded} нових пацієнтів).");
+            }
+        }
 
         Console.WriteLine("\n== new vs override ==");
         UrgentAppointment urgentApp = new UrgentAppointment(1, 1, DateTime.Today.AddDays(1).AddHours(10), "тест");
@@ -95,6 +107,15 @@ class Program
             else if (choice == "10") FilesMenu(clinic);
             else if (choice == "0")
             {
+                Console.Write("Зберегти сесію? (y/n): ");
+                string? saveChoice = Console.ReadLine();
+                if (saveChoice != null && saveChoice.Trim().Equals("y", StringComparison.OrdinalIgnoreCase))
+                {
+                    clinic.Session.Save(clinic);
+                    Console.WriteLine("Сесію збережено.");
+                    clinic.Logger.LogInfo("Сесію збережено перед виходом.");
+                }
+                
                 Console.WriteLine("Роботу завершено. Навседобре!");
                 break;
             }

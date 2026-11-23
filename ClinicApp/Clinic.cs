@@ -19,6 +19,7 @@ public class Clinic
 
     public ClinicLogger Logger { get; }
     public ClinicExporter Exporter { get; }
+    public SessionManager Session { get; }
 
     public WaitingQueue<Patient> WaitingRoom { get; }
 
@@ -36,6 +37,7 @@ public class Clinic
 
         Logger = new ClinicLogger();
         Exporter = new ClinicExporter(this);
+        Session = new SessionManager();
 
         WaitingRoom = new WaitingQueue<Patient>();
     }
