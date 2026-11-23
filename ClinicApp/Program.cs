@@ -107,6 +107,7 @@ class Program
                 Console.WriteLine("\n--- Файли --------------------");
                 Console.WriteLine("1. Останні рядки лога");
                 Console.WriteLine("2. Очистити лог");
+                Console.WriteLine("3. Експортувати всі звіти");
                 Console.WriteLine("0. Назад");
                 Console.Write("Оберіть: ");
 
@@ -139,6 +140,16 @@ class Program
                     clinic.Logger.Clear();
                     Console.WriteLine("Лог очищено.");
                 }
+                else if (choice == "3")
+                {
+                    string[] paths = clinic.Exporter.ExportAll();
+                    Console.WriteLine("Звіти експортовано:");
+                    for (int i = 0; i < paths.Length; i++)
+                    {
+                        Console.WriteLine($"  {paths[i]}");
+                    }
+                    clinic.Logger.LogInfo("Експортовано всі звіти у файли.");
+                }
                 else if (choice == "0")
                 {
                     break;
@@ -148,6 +159,7 @@ class Program
                     Console.WriteLine("Невідома команда.");
                 }
             }
+            
         }
 
         static void TreatmentPlansMenu(Clinic clinic)

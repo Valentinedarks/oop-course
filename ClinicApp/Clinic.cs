@@ -18,6 +18,7 @@ public class Clinic
     public TreatmentPlanManager TreatmentPlans { get; }
 
     public ClinicLogger Logger { get; }
+    public ClinicExporter Exporter { get; }
 
     public WaitingQueue<Patient> WaitingRoom { get; }
 
@@ -34,6 +35,7 @@ public class Clinic
         TreatmentPlans = new TreatmentPlanManager();
 
         Logger = new ClinicLogger();
+        Exporter = new ClinicExporter(this);
 
         WaitingRoom = new WaitingQueue<Patient>();
     }
