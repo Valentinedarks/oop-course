@@ -40,6 +40,19 @@ public class Clinic
         Session = new SessionManager();
 
         WaitingRoom = new WaitingQueue<Patient>();
+
+        SubscribeEvents();
+    }
+
+    private void SubscribeEvents()
+    {
+        Patients.PatientAdded += Logger.OnPatientAdded;
+        Appointments.AppointmentBooked += Logger.OnAppointmentBooked;
+        Appointments.UrgentAppointmentBooked += Logger.OnUrgentAppointmentBooked;
+        Appointments.AppointmentCancelled += Logger.OnAppointmentCancelled;
+        Appointments.AppointmentCompleted += Logger.OnAppointmentCompleted;
+        Billing.PaymentReceived += Logger.OnPaymentReceived;
+        TreatmentPlans.PlanCompleted += Logger.OnPlanCompleted;
     }
 
     public void DisplaySchedule(DateTime date)

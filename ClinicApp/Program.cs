@@ -1,11 +1,11 @@
 ﻿using System;
-using ClinicApp.Events;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Threading;
 using ClinicApp;
 using ClinicApp.Models;
 using ClinicApp.Enums;
+using ClinicApp.Events;
 using ClinicApp.Interfaces;
 using ClinicApp.Managers;
 using ClinicApp.Comparators;
@@ -192,7 +192,6 @@ class Program
                     Console.WriteLine("Невідома команда.");
                 }
             }
-            
         }
 
         static void TreatmentPlansMenu(Clinic clinic)
@@ -290,18 +289,13 @@ class Program
                         continue;
                     }
 
-                    TreatmentPlan? plan = clinic.TreatmentPlans.GetById(id);
-                    if (plan == null)
-                    {
-                        Console.WriteLine("План не знайдено.");
-                    }
-                    else if (plan.Complete())
+                    if (clinic.TreatmentPlans.Complete(id))
                     {
                         Console.WriteLine($"План [{id}] завершено.");
                     }
                     else
                     {
-                        Console.WriteLine("Неможливо завершити план (завершити можна лише активний план).");
+                        Console.WriteLine("Неможливо завершити план (план не знайдено або він не в статусі Active).");
                     }
                 }
                 else if (choice == "6")
@@ -551,7 +545,6 @@ class Program
                     if (clinic.Billing.PayAppointment(appId))
                     {
                         Console.WriteLine($"Запис [{appId}] оплачено.");
-                        clinic.Logger.LogInfo($"Оплачено запис #{appId}.");
                     }
                     else
                     {
@@ -771,10 +764,7 @@ class Program
                             int duration = 30;
                             if (!string.IsNullOrWhiteSpace(durationStr)) int.TryParse(durationStr, out duration);
 
-                            if (clinic.Appointments.Book(pId, dId, dt, duration))
-                            {
-                                clinic.Logger.LogInfo($"Запис створено: пацієнт #{pId} -> лікар #{dId}");
-                            }
+                            clinic.Appointments.Book(pId, dId, dt, duration);
                         }
                         else Console.WriteLine("Некоректний формат дати або часу.");
                     }
@@ -797,7 +787,6 @@ class Program
                         if (clinic.Appointments.Complete(id))
                         {
                             Console.WriteLine($"Запис [{id}] успішно переведено у статус Completed.");
-                            clinic.Logger.LogInfo($"Запис #{id} завершено.");
                         }
                         else
                         {
@@ -815,7 +804,6 @@ class Program
                         if (clinic.Appointments.Cancel(id, reason))
                         {
                             Console.WriteLine($"Запис [{id}] скасовано.");
-                            clinic.Logger.LogInfo($"Запис #{id} скасовано.");
                         }
                         else
                         {
@@ -845,18 +833,14 @@ class Program
                     string reason = Console.ReadLine()!;
 
                     Appointment[] patientApps = clinic.Appointments.GetByPatient(pId);
-                    int count = AppointmentManager.CancelAll(patientApps, reason);
+                    int count = clinic.Appointments.CancelAll(patientApps, reason);
                     Console.WriteLine($"Скасовано записів: {count}");
-                    if (count > 0)
-                    {
-                        clinic.Logger.LogInfo($"Скасовано {count} записів пацієнта #{pId}.");
-                    }
                 }
                 else if (choice == "9")
                 {
                     Console.WriteLine("\n1. Термінові");
                     Console.WriteLine("2. Консультації спеціаліста");
-                    Console.WriteLine("3. Ззвичайні");
+                    Console.WriteLine("3. Звичайні");
                     Console.Write("Оберіть: ");
 
                     string? subChoice = Console.ReadLine();
@@ -1159,8 +1143,6 @@ class Program
         }
 
         static void PatientMenu(Clinic clinic)
-        
-        
         {
             while (true)
             {
@@ -1206,7 +1188,6 @@ class Program
 
                         Patient newPatient = new Patient(firstName, lastName, dob, bloodType, phone);
                         clinic.Patients.Add(newPatient);
-                        clinic.Logger.LogInfo($"Додано пацієнта #{newPatient.Id}: {newPatient.FullName}");
                     }
                     catch (ArgumentOutOfRangeException e)
                     {
@@ -1246,9 +1227,10 @@ class Program
                 else Console.WriteLine("Невідома команда.");
             }
         }
-    }
-    static void OnAppointmentBookedConsole(object? sender, AppointmentEventArgs e)
-    {
-        Console.WriteLine($"[EVENT] Запис #{e.AppointmentId} створено: пацієнт #{e.PatientId} -> лікар #{e.DoctorId}, {e.ScheduledAt:dd.MM.yyyy HH:mm}");
+
+        static void OnAppointmentBookedConsole(object? sender, AppointmentEventArgs e)
+        {
+            Console.WriteLine($"[EVENT] Запис #{e.AppointmentId} створено: пацієнт #{e.PatientId} -> лікар #{e.DoctorId}, {e.ScheduledAt:dd.MM.yyyy HH:mm}");
+        }
     }
 }
