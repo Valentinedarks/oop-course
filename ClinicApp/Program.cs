@@ -1,4 +1,5 @@
 ﻿using System;
+using ClinicApp.Events;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Threading;
@@ -17,6 +18,7 @@ class Program
         Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
 
         Clinic clinic = new Clinic("Медична Клініка");
+        clinic.Appointments.AppointmentBooked += OnAppointmentBookedConsole;
 
         clinic.Patients.Add(new Patient("Іван", "Петренко", new DateTime(1985, 5, 12), BloodType.APositive,
             "0501234567"));
@@ -1157,6 +1159,8 @@ class Program
         }
 
         static void PatientMenu(Clinic clinic)
+        
+        
         {
             while (true)
             {
@@ -1242,5 +1246,9 @@ class Program
                 else Console.WriteLine("Невідома команда.");
             }
         }
+    }
+    static void OnAppointmentBookedConsole(object? sender, AppointmentEventArgs e)
+    {
+        Console.WriteLine($"[EVENT] Запис #{e.AppointmentId} створено: пацієнт #{e.PatientId} -> лікар #{e.DoctorId}, {e.ScheduledAt:dd.MM.yyyy HH:mm}");
     }
 }

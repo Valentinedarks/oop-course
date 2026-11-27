@@ -1,4 +1,5 @@
 ﻿using System;
+using ClinicApp.Events;
 using ClinicApp.Interfaces;
 using ClinicApp.Models;
 
@@ -12,6 +13,8 @@ public class AppointmentManager
 
     private PatientManager _patients;
     private DoctorManager _doctors;
+
+    public event EventHandler<AppointmentEventArgs>? AppointmentBooked;
 
     public int Count => _count;
 
@@ -48,6 +51,7 @@ public class AppointmentManager
         _count++;
 
         Console.WriteLine($"Запис [{app.Id}] створено: {p.FullName} -> {d.FullName} о {app.ScheduledAt:dd.MM.yyyy HH:mm}");
+        AppointmentBooked?.Invoke(this, new AppointmentEventArgs(app.Id, app.PatientId, app.DoctorId, app.ScheduledAt, app.Notes));
         return true;
     }
 
