@@ -1223,7 +1223,23 @@ class Program
                     else Console.WriteLine("Некоректний формат ID.");
                 }
                 else if (choice == "5") clinic.Patients.DisplayStats();
-                else if (choice == "0") break;
+                else if (choice == "0")
+                {
+                    clinic.Tracker.PrintSummary();
+                    clinic.Tracker.SaveSummary();
+
+                    Console.Write("Зберегти сесію? (y/n): ");
+                    string? saveChoice = Console.ReadLine();
+                    if (saveChoice != null && saveChoice.Trim().Equals("y", StringComparison.OrdinalIgnoreCase))
+                    {
+                        clinic.Session.Save(clinic);
+                        Console.WriteLine("Сесію збережено.");
+                        clinic.Logger.LogInfo("Сесію збережено перед виходом.");
+                    }
+                
+                    Console.WriteLine("Роботу завершено. Навседобре!");
+                    break;
+                }
                 else Console.WriteLine("Невідома команда.");
             }
         }
